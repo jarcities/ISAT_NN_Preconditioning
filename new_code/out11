@@ -1,0 +1,198 @@
+94.3233
+116.228
+116.307
+116.309
+116.369
+116.413
+116.413
+116.415
+116.418
+116.418
+116.433
+116.433
+116.433
+116.45
+116.469
+116.47
+116.471
+116.471
+116.491
+116.51
+116.588
+116.693
+116.831
+116.969
+117.152
+117.152
+117.152
+117.152
+117.153
+117.154
+117.157
+117.172
+117.185
+117.198
+117.211
+117.222
+117.238
+117.272
+117.285
+117.316
+117.372
+117.429
+117.474
+117.504
+117.532
+117.563
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+1e+66
+-1e+33
+1.20272e-07
+1.44407e+10
+9.33473e+09
+6.55024e+17
+terminate called after throwing an instance of 'Cantera::CanteraError'
+  what():  
+*******************************************************************************
+CanteraError thrown by Phase::setTemperature:
+temperature must be positive. T = -nan
+*******************************************************************************
+
+forrtl: error (76): Abort trap signal
+Image              PC                Routine            Line        Source             
+libc.so.6          00007FA8E9326520  Unknown               Unknown  Unknown
+libc.so.6          00007FA8E937A9FC  pthread_kill          Unknown  Unknown
+libc.so.6          00007FA8E9326476  raise                 Unknown  Unknown
+libc.so.6          00007FA8E930C7F3  abort                 Unknown  Unknown
+libstdc++.so.6.0.  00007FA8F1854FBE  _ZN9__gnu_cxx27__     Unknown  Unknown
+libstdc++.so.6.0.  00007FA8F1853502  Unknown               Unknown  Unknown
+libstdc++.so.6.0.  00007FA8F184D303  _ZSt10unexpectedv     Unknown  Unknown
+libstdc++.so.6.0.  00007FA8F185376E  __cxa_current_exc     Unknown  Unknown
+libcantera.so.3.0  00007FA8F111A309  Unknown               Unknown  Unknown
+PaSR.exe           00000000004152BE  Unknown               Unknown  Unknown
+libsundials_cvode  00007FA8F176BE34  Unknown               Unknown  Unknown
+libsundials_cvode  00007FA8F17871E3  SUNNonlinSolSolve     Unknown  Unknown
+libsundials_cvode  00007FA8F175523F  Unknown               Unknown  Unknown
+libsundials_cvode  00007FA8F175D352  CVode                 Unknown  Unknown
+PaSR.exe           0000000000419411  Unknown               Unknown  Unknown
+PaSR.exe           000000000044EAF6  Unknown               Unknown  Unknown
+PaSR.exe           000000000040D93D  Unknown               Unknown  Unknown
+PaSR.exe           000000000040779D  Unknown               Unknown  Unknown
+libc.so.6          00007FA8E930DD90  Unknown               Unknown  Unknown
+libc.so.6          00007FA8E930DE40  __libc_start_main     Unknown  Unknown
+PaSR.exe           00000000004076B5  Unknown               Unknown  Unknown
