@@ -143,11 +143,8 @@ void fromxhat(double x[], double ptcl[], int &nx, double rusr[])
 
     ptcl[0] = (x[0] * rusr[nx]) + rusr[0]; // ptcl[0] is the temperature, in K
 
-    // double ptclSum = 0.0;
-
     for (int ii = 1; ii < nx; ii++)
     {
-
         ptcl[ii] = rusr[ii] * std::max(x[ii], 0.0);
     }
 }
@@ -176,19 +173,17 @@ double fAct(double x)
 
 void myfnn(int &nx, double x[], double fnn[])
 {
-    // this function evaluates f^{}
+    // this function evaluates f^{MLP}
 
-    static int bbbb; // dummy variable used to call "initfnn" the first time "myfnn" is called
-
-    double x1[100];
-    double x2[100]; // work arrays
-
-    if (bbbb != 7777)
+    static bool initialized = false;
+    if (!initialized)
     {
         Gl::initfnn();
-        bbbb = 7777;
-    } // if "myfnn" is called for the first time, initialize the
-      // f^{MLP} data structure by reading in the weights
+        initialized = true;
+    }
+
+    double x1[100];
+    double x2[100];
 
     for (int ii = 0; ii < n1[0]; ii++)
     {
@@ -229,39 +224,24 @@ void myfnn(int &nx, double x[], double fnn[])
 void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
            double rusr[], double f[], double g[], double h[])
 {
-
-    double Y[nx - 1];             // mass fraction
-    double T[1];                  // temperature
-    double ptcl[nx];              // particle properties
-    double *solution;             // Cantera solution object
-    double aTol = 1e-8;           // rusr[2*nx];
-    double rTol = 1e-8;           // rusr[2*nx+1]; //absolute and relative tolerances for the ODE integrator
-    double dt = rusr[2 * nx + 2]; // time step over which to integrate
-    double dx = rusr[2 * nx + 3]; // spatial increment in x for Jacobian evaluation
-    double p = rusr[2 * nx + 4];  // user-specified pressure
-    int mode = iusr[0];
-    double fnn[nx];      // f^{MLP}
-    double gnn[nx * nx]; // Jacobian of f^{MLP}
-    sunrealtype dtout, tt;
-
-    for (int ii = 0; ii < nx; ii++)
-    {
-        fnn[ii] = 0.0;
-    }
-    for (int ii = 0; ii < nx * nx; ii++)
-    {
-        gnn[ii] = 0.0;
-    }
-
-    static int aaaa; // if "myfgh" is called for the first time, initialize the
-                     // myfgh data structure by creating the Cantera solution object
-
-    if (aaaa != 7777)
+    static bool initialized = false;
+    if (!initialized)
     {
         Gl::initfgh(rusr);
-        aaaa = 7777;
+        initialized = true;
         return;
-    } // initialize "myfgh" on the first call
+    }
+
+    double aTol = 1e-8;
+    double rTol = 1e-8;
+    double dt = rusr[2 * nx + 2];
+    double dx = rusr[2 * nx + 3];
+    double p = rusr[2 * nx + 4];
+    int mode = iusr[0];
+    sunrealtype dtout, tt;
+
+    std::vector<double> fnn(nx, 0.0);
+    std::vector<double> gnn(nx * nx, 0.0);
 
     for (int ii = 0; ii < NEQ; ii++)
     {
@@ -269,7 +249,6 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
     }
 
     dtout = SUN_RCONST(dt);
-
     data->myNeed = need[1];
 
     int retval = CVodeReInit(cvode_mem, SUN_RCONST(0.0), yy);
@@ -284,8 +263,6 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
     }
 
     data->time = 0.0;
-
-    // if ( mode == 2){myfnn(nx, x, fnn);}
 
     retval = CVode(cvode_mem, dtout, yy, &tt, CV_NORMAL);
     for (int ii = 0; ii < nx; ii++)
@@ -363,67 +340,54 @@ void mymix(int &nx, double ptcl1[], double ptcl2[], double alpha[], int iusr[], 
 {
     // mix two particles, conserving mass and energy
 
-    double Y1[nx - 1], Y2[nx - 1]; // mass fractions
-    double H1, H2;                 // enthalpies
-    double T1[1], T2[1];           // temperatures
-    double d;                      // work variable
-    double p = OneAtm;             // rusr[2*nx+4];
+    std::vector<double> Y1(nx - 1);
+    std::vector<double> Y2(nx - 1);
+    double H1, H2;
+    double T1 = ptcl1[0];
+    double T2 = ptcl2[0];
+    double d;
+    double p = OneAtm;
 
-    T1[0] = ptcl1[0];
     for (int ii = 1; ii < nx; ii++)
     {
         Y1[ii - 1] = ptcl1[ii];
-    }
-    T2[0] = ptcl2[0];
-    for (int ii = 1; ii < nx; ii++)
-    {
         Y2[ii - 1] = ptcl2[ii];
     }
-    // extract temperature and mass fractios for the two particles
 
-    gas->setState_TPY(T1[0], p, Y1); // initialize the gas to the state of the first particle
+    gas->setState_TPY(T1, p, Y1.data());
+    H1 = gas->enthalpy_mass();
 
-    H1 = gas->enthalpy_mass(); // get the enthalpy of the first particle
-
-    gas->setState_TPY(T2[0], p, Y2); // initialize the gas to the state of the second particle
-
-    H2 = gas->enthalpy_mass(); // get the enthalpy of the second particle
+    gas->setState_TPY(T2, p, Y2.data());
+    H2 = gas->enthalpy_mass();
 
     d = H2 - H1;
     H1 += alpha[0] * d;
-    H2 -= alpha[0] * d; // mix enthalpies
-    // alpha is amount by which to mix the particles (0 is no mixing, 0.5 is complete mixing)
+    H2 -= alpha[0] * d;
 
     for (int ii = 0; ii < nx - 1; ii++)
     {
         d = Y2[ii] - Y1[ii];
         Y1[ii] += alpha[0] * d;
-        Y2[ii] -= alpha[0] * d; // mix mass fractions
+        Y2[ii] -= alpha[0] * d;
     }
 
     d = alpha[0] * (T2 - T1);
 
-    gas->setState_TPY(T1[0] + d, p, Y1);
+    gas->setState_TPY(T1 + d, p, Y1.data());
     gas->setState_HP(H1, p);
+    T1 = gas->temperature();
 
-    T1[0] = gas->temperature();
-
-    gas->setState_TPY(T2[0] - d, p, Y2);
+    gas->setState_TPY(T2 - d, p, Y2.data());
     gas->setState_HP(H2, p);
+    T2 = gas->temperature();
 
-    T2[0] = gas->temperature(); // set the particle's thermodynamic states to the new mixed values, and
-    // extract the corresponding temperatures
-
-    ptcl1[0] = T1[0];
+    ptcl1[0] = T1;
+    ptcl2[0] = T2;
     for (int ii = 1; ii < nx; ii++)
     {
         ptcl1[ii] = Y1[ii - 1];
-    }
-    ptcl2[0] = T2[0];
-    for (int ii = 1; ii < nx; ii++)
-    {
         ptcl2[ii] = Y2[ii - 1];
-    } // pass the new temperatures and mass fractions to the output
+    }
 }
 
 static int fCVODE(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
