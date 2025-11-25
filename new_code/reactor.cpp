@@ -175,6 +175,7 @@ void myfnn(int &nx, double x[], double fnn[])
 {
     // this function evaluates f^{MLP}
 
+    // use static bool instead of dummy int for initialization check
     static bool initialized = false;
     if (!initialized)
     {
@@ -224,6 +225,7 @@ void myfnn(int &nx, double x[], double fnn[])
 void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
            double rusr[], double f[], double g[], double h[])
 {
+    // use static bool instead of dummy int for initialization check
     static bool initialized = false;
     if (!initialized)
     {
@@ -240,6 +242,7 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
     int mode = iusr[0];
     sunrealtype dtout, tt;
 
+    // use std::vector instead of c arrays, auto-initialized to zero
     std::vector<double> fnn(nx, 0.0);
     std::vector<double> gnn(nx * nx, 0.0);
 
@@ -340,9 +343,11 @@ void mymix(int &nx, double ptcl1[], double ptcl2[], double alpha[], int iusr[], 
 {
     // mix two particles, conserving mass and energy
 
+    // use std::vector instead of c arrays for mass fractions
     std::vector<double> Y1(nx - 1);
     std::vector<double> Y2(nx - 1);
     double H1, H2;
+    // use scalar double instead of array for temperatures
     double T1 = ptcl1[0];
     double T2 = ptcl2[0];
     double d;
@@ -354,6 +359,7 @@ void mymix(int &nx, double ptcl1[], double ptcl2[], double alpha[], int iusr[], 
         Y2[ii - 1] = ptcl2[ii];
     }
 
+    // use .data() to pass vector pointer to c-style function
     gas->setState_TPY(T1, p, Y1.data());
     H1 = gas->enthalpy_mass();
 
@@ -381,6 +387,7 @@ void mymix(int &nx, double ptcl1[], double ptcl2[], double alpha[], int iusr[], 
     gas->setState_HP(H2, p);
     T2 = gas->temperature();
 
+    // write back scalar temps instead of array indexing
     ptcl1[0] = T1;
     ptcl2[0] = T2;
     for (int ii = 1; ii < nx; ii++)
