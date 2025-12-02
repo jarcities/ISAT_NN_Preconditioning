@@ -273,64 +273,135 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
         f[ii] = Ith(yy, ii + 1) - x[ii] - fnn[ii];
     }
 
+    // if (need[1] == 1)
+    // {
+
+    //     // static eigen arrays
+    //     static Eigen::MatrixXd newSR(NEQ, NEQ), Q(NEQ, NEQ);
+    //     static Eigen::MatrixXcd expQ(NEQ, NEQ);
+
+    //     // static eigen arrays
+    //     static Eigen::EigenSolver<Eigen::MatrixXd> es;
+
+    //     for (int jj = 0; jj < NEQ; jj++)
+    //     {
+    //         for (int ii = 0; ii < NEQ; ii++)
+    //         {
+    //             newSR.coeffRef(ii, jj) = data->SR[ii + jj * NEQ];
+    //             Q.coeffRef(ii, jj) = data->JJ[ii + jj * NEQ];
+    //         }
+    //     }
+
+    //     es.compute(Q);
+
+    //     // static eigen arrays
+    //     const Eigen::VectorXcd& eigenvalues = es.eigenvalues();
+    //     const Eigen::MatrixXcd& eigenvectors = es.eigenvectors();
+
+    //     for (int ii = 0; ii < NEQ; ii++)
+    //     {
+    //         expQ.col(ii) = eigenvectors.col(ii) * std::exp(std::max((dt - data->time), 0.0) * eigenvalues.coeffRef(ii));
+    //     }
+
+    //     expQ = expQ * eigenvectors.inverse();
+
+    //     newSR = expQ.real() * newSR;
+
+    //     if (need[1] == 1)
+    //     {
+    //         for (int ii = 0; ii < nx; ii++)
+    //         {
+    //             for (int jj = 0; jj < nx; jj++)
+    //             {
+    //                 g[ii + jj * (nx)] = newSR.coeffRef(ii, jj);
+    //             }
+    //             g[ii + ii * (nx)] = (g[ii + ii * (nx)] - 1.0);
+    //         }
+    //     }
+
+    //     double maxcol = 0.0, col = 0.0;
+
+    //     int maxJ = 0;
+
+    //     for (int jj = 0; jj < NEQ; jj++)
+    //     {
+    //         col = 0.0;
+    //         for (int ii = 0; ii < NEQ; ii++)
+    //         {
+    //             col += std::pow(newSR.coeffRef(ii, jj), 2);
+    //         }
+    //         col = std::pow(col, 0.5);
+    //         if (col > maxcol)
+    //         {
+    //             maxcol = col;
+    //             maxJ = jj;
+    //         }
+    //     }
+
+    //     std::cout << maxcol << " " << maxJ << " " << dt - data->time << std::endl;
+    // }
+
     if (need[1] == 1)
     {
+        Eigen::MatrixXd J(NEQ, NEQ);
 
-        // static eigen arrays
-        static Eigen::MatrixXd newSR(NEQ, NEQ), Q(NEQ, NEQ);
-        static Eigen::MatrixXcd expQ(NEQ, NEQ);
-
-        // static eigen arrays
-        static Eigen::EigenSolver<Eigen::MatrixXd> es;
-
+        // load jacobian
         for (int jj = 0; jj < NEQ; jj++)
         {
             for (int ii = 0; ii < NEQ; ii++)
             {
-                newSR.coeffRef(ii, jj) = data->SR[ii + jj * NEQ];
-                Q.coeffRef(ii, jj) = data->JJ[ii + jj * NEQ];
+                J.coeffRef(ii, jj) = data->JJ[ii + jj * NEQ];
             }
         }
 
-        es.compute(Q);
+        // form A = I - (dt - data->time) * J   // implicit form
+        double tau = std::max(dt - data->time, 0.0);   
+        Eigen::MatrixXd A = Eigen::MatrixXd::Identity(NEQ, NEQ) - tau * J;
 
-        // static eigen arrays
-        const Eigen::VectorXcd& eigenvalues = es.eigenvalues();
-        const Eigen::MatrixXcd& eigenvectors = es.eigenvectors();
+        // lu factorization
+        Eigen::PartialPivLU<Eigen::MatrixXd> lu(A);
 
-        for (int ii = 0; ii < NEQ; ii++)
+        // load sensitivity matrix
+        Eigen::MatrixXd SR(NEQ, NEQ);
+        for (int jj = 0; jj < NEQ; jj++)
         {
-            expQ.col(ii) = eigenvectors.col(ii) * std::exp(std::max((dt - data->time), 0.0) * eigenvalues.coeffRef(ii));
+            for (int ii = 0; ii < NEQ; ii++)
+            {
+                SR.coeffRef(ii, jj) = data->SR[ii + jj * NEQ];
+            }
         }
 
-        expQ = expQ * eigenvectors.inverse();
+        // apply solution
+        Eigen::MatrixXd newSR = lu.solve(SR);
 
-        newSR = expQ.real() * newSR;
-
+        // copy jacobian to g
         if (need[1] == 1)
         {
             for (int ii = 0; ii < nx; ii++)
             {
                 for (int jj = 0; jj < nx; jj++)
                 {
-                    g[ii + jj * (nx)] = newSR.coeffRef(ii, jj);
+                    g[ii + jj * nx] = newSR.coeffRef(ii, jj);
                 }
-                g[ii + ii * (nx)] = (g[ii + ii * (nx)] - 1.0);
+
+                g[ii + ii * nx] = g[ii + ii * nx] - 1.0;
             }
         }
 
         double maxcol = 0.0, col = 0.0;
-
         int maxJ = 0;
 
         for (int jj = 0; jj < NEQ; jj++)
         {
             col = 0.0;
+
             for (int ii = 0; ii < NEQ; ii++)
             {
                 col += std::pow(newSR.coeffRef(ii, jj), 2);
             }
-            col = std::pow(col, 0.5);
+
+            col = std::sqrt(col);
+
             if (col > maxcol)
             {
                 maxcol = col;
