@@ -273,6 +273,7 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
         f[ii] = Ith(yy, ii + 1) - x[ii] - fnn[ii];
     }
 
+    // EIGEN VALUE DECOMP
     // if (need[1] == 1)
     // {
 
@@ -341,6 +342,7 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
     //     std::cout << maxcol << " " << maxJ << " " << dt - data->time << std::endl;
     // }
 
+    // LU FACTORIZATION 
     if (need[1] == 1)
     {
         Eigen::MatrixXd J(NEQ, NEQ);
@@ -354,7 +356,7 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
             }
         }
 
-        // form A = I - (dt - data->time) * J   // implicit form
+        // form g(x) = S(delta t) - I
         double tau = std::max(dt - data->time, 0.0);   
         Eigen::MatrixXd A = Eigen::MatrixXd::Identity(NEQ, NEQ) - tau * J;
 
@@ -371,37 +373,33 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
             }
         }
 
-        // apply solution
+        // lu solve
         Eigen::MatrixXd newSR = lu.solve(SR);
 
-        // copy jacobian to g
         if (need[1] == 1)
         {
             for (int ii = 0; ii < nx; ii++)
             {
                 for (int jj = 0; jj < nx; jj++)
                 {
-                    g[ii + jj * nx] = newSR.coeffRef(ii, jj);
+                    g[ii + jj * (nx)] = newSR.coeffRef(ii, jj);
                 }
-
-                g[ii + ii * nx] = g[ii + ii * nx] - 1.0;
+                g[ii + ii * (nx)] = (g[ii + ii * (nx)] - 1.0);
             }
         }
 
         double maxcol = 0.0, col = 0.0;
+
         int maxJ = 0;
 
         for (int jj = 0; jj < NEQ; jj++)
         {
             col = 0.0;
-
             for (int ii = 0; ii < NEQ; ii++)
             {
                 col += std::pow(newSR.coeffRef(ii, jj), 2);
             }
-
-            col = std::sqrt(col);
-
+            col = std::pow(col, 0.5);
             if (col > maxcol)
             {
                 maxcol = col;
