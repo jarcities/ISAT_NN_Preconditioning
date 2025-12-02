@@ -1,4 +1,5 @@
 #include <cmath>
+#include <array>
 #include <cvodes/cvodes.h> /* prototypes for CVODES fcts., consts. */
 #include <math.h>
 #include <nvector/nvector_serial.h> /* access to serial N_Vector            */

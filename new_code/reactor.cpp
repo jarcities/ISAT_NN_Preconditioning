@@ -242,9 +242,9 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
     int mode = iusr[0];
     sunrealtype dtout, tt;
 
-    // use c++ vector instead of c arrays, init to zero
-    std::vector<double> fnn(nx, 0.0);
-    std::vector<double> gnn(nx * nx, 0.0);
+    // use std::array for fixed-size arrays, init to zero
+    std::array<double, NEQ> fnn = {};
+    std::array<double, NEQ * NEQ> gnn = {};
 
     for (int ii = 0; ii < NEQ; ii++)
     {
@@ -346,9 +346,9 @@ void mymix(int &nx, double ptcl1[], double ptcl2[], double alpha[], int iusr[], 
 {
     // mix two particles, conserving mass and energy
 
-    // use std::vector instead of c arrays for mass fractions
-    std::vector<double> Y1(nx - 1);
-    std::vector<double> Y2(nx - 1);
+    // use std::array for fixed-size mass fractions
+    std::array<double, NEQ - 1> Y1;
+    std::array<double, NEQ - 1> Y2;
     double H1, H2;
     // use scalar double instead of array for temperatures
     double T1 = ptcl1[0];
