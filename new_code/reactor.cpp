@@ -277,11 +277,11 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
     {
 
         // static eigen arrays
-        Eigen::Matrix<double, NEQ, NEQ> newSR, Q;
-        Eigen::Matrix<std::complex<double>, NEQ, NEQ> expQ;
+        static Eigen::MatrixXd newSR(NEQ, NEQ), Q(NEQ, NEQ);
+        static Eigen::MatrixXcd expQ(NEQ, NEQ);
 
         // static eigen arrays
-        Eigen::EigenSolver<Eigen::Matrix<double, NEQ, NEQ>> es;
+        static Eigen::EigenSolver<Eigen::MatrixXd> es;
 
         for (int jj = 0; jj < NEQ; jj++)
         {
@@ -294,8 +294,9 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
 
         es.compute(Q);
 
-        Eigen::VectorXcd eigenvalues = es.eigenvalues();
-        Eigen::MatrixXcd eigenvectors = es.eigenvectors();
+        // static eigen arrays
+        const Eigen::VectorXcd& eigenvalues = es.eigenvalues();
+        const Eigen::MatrixXcd& eigenvectors = es.eigenvectors();
 
         for (int ii = 0; ii < NEQ; ii++)
         {
@@ -564,8 +565,8 @@ static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_
     {
 
         // static eigen arrays
-        Eigen::Matrix<double, NEQ, NEQ> newSR, Q;
-        Eigen::Matrix<std::complex<double>, NEQ, NEQ> expQ;
+        static Eigen::MatrixXd newSR(NEQ, NEQ), Q(NEQ, NEQ);
+        static Eigen::MatrixXcd expQ(NEQ, NEQ);
 
         for (int jj = 0; jj < NEQ; jj++)
         {
@@ -578,7 +579,7 @@ static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_
         }
 
         // static eigen arrays
-        Eigen::EigenSolver<Eigen::Matrix<double, NEQ, NEQ>> es;
+        static Eigen::EigenSolver<Eigen::MatrixXd> es;
 
         for (int jj = 0; jj < NEQ; jj++)
         {
@@ -592,8 +593,8 @@ static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_
         es.compute(Q);
 
         // static eigen arrays
-        Eigen::Matrix<std::complex<double>, NEQ, 1> eigenvalues = es.eigenvalues();
-        Eigen::Matrix<std::complex<double>, NEQ, NEQ> eigenvectors = es.eigenvectors();
+        const Eigen::VectorXcd& eigenvalues = es.eigenvalues();
+        const Eigen::MatrixXcd& eigenvectors = es.eigenvectors();
 
         for (int jj = 0; jj < NEQ; jj++)
         {
