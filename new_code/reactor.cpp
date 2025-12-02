@@ -225,7 +225,7 @@ void myfnn(int &nx, double x[], double fnn[])
 void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
            double rusr[], double f[], double g[], double h[])
 {
-    // use static bool instead of dummy int for initialization check
+    // use static bool instead of int 7777
     static bool initialized = false;
     if (!initialized)
     {
@@ -242,7 +242,7 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
     int mode = iusr[0];
     sunrealtype dtout, tt;
 
-    // use std::vector instead of c arrays, auto-initialized to zero
+    // use c++ vector instead of c arrays, init to zero
     std::vector<double> fnn(nx, 0.0);
     std::vector<double> gnn(nx * nx, 0.0);
 
@@ -276,10 +276,12 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
     if (need[1] == 1)
     {
 
-        Eigen::MatrixXd newSR(NEQ, NEQ), Q(NEQ, NEQ);
-        Eigen::MatrixXcd expQ(NEQ, NEQ);
+        // static eigen arrays
+        Eigen::Matrix<double, NEQ, NEQ> newSR, Q;
+        Eigen::Matrix<std::complex<double>, NEQ, NEQ> expQ;
 
-        Eigen::EigenSolver<Eigen::MatrixXd> es;
+        // static eigen arrays
+        Eigen::EigenSolver<Eigen::Matrix<double, NEQ, NEQ>> es;
 
         for (int jj = 0; jj < NEQ; jj++)
         {
@@ -561,8 +563,9 @@ static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_
     if (data->myNeed == 1)
     {
 
-        Eigen::MatrixXd newSR(NEQ, NEQ), Q(NEQ, NEQ);
-        Eigen::MatrixXcd expQ(NEQ, NEQ);
+        // static eigen arrays
+        Eigen::Matrix<double, NEQ, NEQ> newSR, Q;
+        Eigen::Matrix<std::complex<double>, NEQ, NEQ> expQ;
 
         for (int jj = 0; jj < NEQ; jj++)
         {
@@ -574,7 +577,8 @@ static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_
             }
         }
 
-        Eigen::EigenSolver<Eigen::MatrixXd> es;
+        // static eigen arrays
+        Eigen::EigenSolver<Eigen::Matrix<double, NEQ, NEQ>> es;
 
         for (int jj = 0; jj < NEQ; jj++)
         {
@@ -587,8 +591,9 @@ static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_
 
         es.compute(Q);
 
-        Eigen::VectorXcd eigenvalues = es.eigenvalues();
-        Eigen::MatrixXcd eigenvectors = es.eigenvectors();
+        // static eigen arrays
+        Eigen::Matrix<std::complex<double>, NEQ, 1> eigenvalues = es.eigenvalues();
+        Eigen::Matrix<std::complex<double>, NEQ, NEQ> eigenvectors = es.eigenvectors();
 
         for (int jj = 0; jj < NEQ; jj++)
         {
