@@ -135,7 +135,7 @@ namespace Gl
 
 using namespace Gl;
 
-void fromxhat(double x[], double ptcl[], int &nx, double rusr[])
+inline void fromxhat(double x[], double ptcl[], int &nx, double rusr[])
 {
     // this function converts the normalized vector x into temperature and mass fractions for one particle
     // x[] is the input, ptcl[] is the output, nx indicates the number of dimensions of both x and ptcl
@@ -149,7 +149,7 @@ void fromxhat(double x[], double ptcl[], int &nx, double rusr[])
     }
 }
 
-void toxhat(double ptcl[], double x[], int &nx, double rusr[])
+inline void toxhat(double ptcl[], double x[], int &nx, double rusr[])
 {
     // this function converts a particle's temperature and mass fractions into the normalized vector x
     // x[] is the input, ptcl[] is the output, nx indicates the number of dimensions of both x and ptcl
@@ -164,7 +164,7 @@ void toxhat(double ptcl[], double x[], int &nx, double rusr[])
     }
 }
 
-double fAct(double x)
+inline double fAct(double x)
 { // activation function of the hidden layers,
     // here a Mish function is used
 

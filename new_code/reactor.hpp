@@ -17,18 +17,18 @@
 #define SUN_COMM_NULL NULL
 #endif
 
-
-#define NEQ 164
-#define NS NEQ
-#define NLAYER 6
-#define NNEURON 30
+// used `constexpr` instead of #define
+constexpr int NEQ = 164;
+constexpr int NS = NEQ;
+constexpr int NLAYER = 6;
+constexpr int NNEURON = 30;
 #define YAMLFILE "diesel.yaml"
 #define PHASE "gas"
 #define TRANSP "none"
-#define RTOL SUN_RCONST(1.0e-6)
-#define ATOL SUN_RCONST(1.0e-8)
-#define ZERO SUN_RCONST(0.0)
-#define ONE SUN_RCONST(1.0)
+constexpr sunrealtype RTOL = SUN_RCONST(1.0e-6);
+constexpr sunrealtype ATOL = SUN_RCONST(1.0e-8);
+constexpr sunrealtype ZERO = SUN_RCONST(0.0);
+constexpr sunrealtype ONE = SUN_RCONST(1.0);
 #define Ith(v, i) NV_Ith_S(v, i - 1) /* i-th vector component i=1..NEQ */
 #define IJth(A, i, j) \
   SM_ELEMENT_D(A, i - 1, j - 1) /* (i,j)-th matrix component i,j=1..NEQ */
