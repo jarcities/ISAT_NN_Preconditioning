@@ -1,0 +1,82 @@
+(cantera) [jsampayan4914@gpu004 new_code]$ ./build.sh 
+rm: cannot remove '*.o': No such file or directory
+rm: cannot remove '*.exe': No such file or directory
+In file included from reactor.cpp:1:
+In file included from ./reactor.hpp:10:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/cantera/core.h:13:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/cantera/base/Interface.h:11:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/cantera/kinetics/InterfaceKinetics.h:11:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/cantera/kinetics/Kinetics.h:14:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/cantera/kinetics/StoichManager.h:11:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/cantera/numerics/eigen_sparse.h:10:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/Sparse:26:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/SparseCore:11:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/Core:287:
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/DenseStorage.h:33:23: error: static assertion failed due to requirement '26896 * sizeof(double) <= 131072': OBJECT_ALLOCATED_ON_STACK_IS_TOO_BIG
+   33 |   EIGEN_STATIC_ASSERT(Size * sizeof(T) <= EIGEN_STACK_ALLOCATION_LIMIT, OBJECT_ALLOCATED_ON_STACK_IS_TOO_BIG);
+      |   ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/util/StaticAssert.h:33:54: note: expanded from macro 'EIGEN_STATIC_ASSERT'
+   33 |     #define EIGEN_STATIC_ASSERT(X,MSG) static_assert(X,#MSG);
+      |                                                      ^
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/DenseStorage.h:110:5: note: in instantiation of function template specialization 'Eigen::internal::check_static_allocation_size<double, 26896>' requested here
+  110 |     check_static_allocation_size<T,Size>();
+      |     ^
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/DenseStorage.h:211:23: note: in instantiation of member function 'Eigen::internal::plain_array<double, 26896, 0>::plain_array' requested here
+  211 |     EIGEN_DEVICE_FUNC DenseStorage() {
+      |                       ^
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/PlainObjectBase.h:476:45: note: in instantiation of member function 'Eigen::DenseStorage<double, 26896, 164, 164, 0>::DenseStorage' requested here
+  476 |     EIGEN_STRONG_INLINE PlainObjectBase() : m_storage()
+      |                                             ^
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/Matrix.h:259:16: note: in instantiation of member function 'Eigen::PlainObjectBase<Eigen::Matrix<double, 164, 164>>::PlainObjectBase' requested here
+  259 |     Matrix() : Base()
+      |                ^
+reactor.cpp:280:41: note: in instantiation of member function 'Eigen::Matrix<double, 164, 164>::Matrix' requested here
+  280 |         Eigen::Matrix<double, NEQ, NEQ> newSR, Q;
+      |                                         ^
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/DenseStorage.h:33:40: note: expression evaluates to '215168 <= 131072'
+   33 |   EIGEN_STATIC_ASSERT(Size * sizeof(T) <= EIGEN_STACK_ALLOCATION_LIMIT, OBJECT_ALLOCATED_ON_STACK_IS_TOO_BIG);
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/util/StaticAssert.h:33:54: note: expanded from macro 'EIGEN_STATIC_ASSERT'
+   33 |     #define EIGEN_STATIC_ASSERT(X,MSG) static_assert(X,#MSG);
+      |                                                      ^
+In file included from reactor.cpp:1:
+In file included from ./reactor.hpp:10:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/cantera/core.h:13:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/cantera/base/Interface.h:11:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/cantera/kinetics/InterfaceKinetics.h:11:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/cantera/kinetics/Kinetics.h:14:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/cantera/kinetics/StoichManager.h:11:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/cantera/numerics/eigen_sparse.h:10:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/Sparse:26:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/SparseCore:11:
+In file included from /home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/Core:287:
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/DenseStorage.h:33:23: error: static assertion failed due to requirement '26896 * sizeof(std::complex<double>) <= 131072': OBJECT_ALLOCATED_ON_STACK_IS_TOO_BIG
+   33 |   EIGEN_STATIC_ASSERT(Size * sizeof(T) <= EIGEN_STACK_ALLOCATION_LIMIT, OBJECT_ALLOCATED_ON_STACK_IS_TOO_BIG);
+      |   ~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/util/StaticAssert.h:33:54: note: expanded from macro 'EIGEN_STATIC_ASSERT'
+   33 |     #define EIGEN_STATIC_ASSERT(X,MSG) static_assert(X,#MSG);
+      |                                                      ^
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/DenseStorage.h:110:5: note: in instantiation of function template specialization 'Eigen::internal::check_static_allocation_size<std::complex<double>, 26896>' requested here
+  110 |     check_static_allocation_size<T,Size>();
+      |     ^
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/DenseStorage.h:211:23: note: in instantiation of member function 'Eigen::internal::plain_array<std::complex<double>, 26896, 0>::plain_array' requested here
+  211 |     EIGEN_DEVICE_FUNC DenseStorage() {
+      |                       ^
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/PlainObjectBase.h:476:45: note: in instantiation of member function 'Eigen::DenseStorage<std::complex<double>, 26896, 164, 164, 0>::DenseStorage' requested here
+  476 |     EIGEN_STRONG_INLINE PlainObjectBase() : m_storage()
+      |                                             ^
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/Matrix.h:259:16: note: in instantiation of member function 'Eigen::PlainObjectBase<Eigen::Matrix<std::complex<double>, 164, 164>>::PlainObjectBase' requested here
+  259 |     Matrix() : Base()
+      |                ^
+reactor.cpp:281:55: note: in instantiation of member function 'Eigen::Matrix<std::complex<double>, 164, 164>::Matrix' requested here
+  281 |         Eigen::Matrix<std::complex<double>, NEQ, NEQ> expQ;
+      |                                                       ^
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/DenseStorage.h:33:40: note: expression evaluates to '430336 <= 131072'
+   33 |   EIGEN_STATIC_ASSERT(Size * sizeof(T) <= EIGEN_STACK_ALLOCATION_LIMIT, OBJECT_ALLOCATED_ON_STACK_IS_TOO_BIG);
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/jsampayan4914/miniconda3/envs/cantera/include/eigen3/Eigen/src/Core/util/StaticAssert.h:33:54: note: expanded from macro 'EIGEN_STATIC_ASSERT'
+   33 |     #define EIGEN_STATIC_ASSERT(X,MSG) static_assert(X,#MSG);
+      |                                                      ^
+2 errors generated.
+ifx: error #10236: File not found: 'reactor.o'
+(cantera) [jsampayan4914@gpu004 new_code]$ 
