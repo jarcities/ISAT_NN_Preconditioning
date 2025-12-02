@@ -415,11 +415,10 @@ void mymix(int &nx, double ptcl1[], double ptcl2[], double alpha[], int iusr[], 
 {
     // mix two particles, conserving mass and energy
 
-    // use std::array for fixed-size mass fractions
+    // use std::array for mass fractions
     std::array<double, NEQ - 1> Y1;
     std::array<double, NEQ - 1> Y2;
     double H1, H2;
-    // use scalar double instead of array for temperatures
     double T1 = ptcl1[0];
     double T2 = ptcl2[0];
     double d;
@@ -431,7 +430,6 @@ void mymix(int &nx, double ptcl1[], double ptcl2[], double alpha[], int iusr[], 
         Y2[ii - 1] = ptcl2[ii];
     }
 
-    // use .data() to pass vector pointer to c-style function
     gas->setState_TPY(T1, p, Y1.data());
     H1 = gas->enthalpy_mass();
 
@@ -459,7 +457,7 @@ void mymix(int &nx, double ptcl1[], double ptcl2[], double alpha[], int iusr[], 
     gas->setState_HP(H2, p);
     T2 = gas->temperature();
 
-    // write back scalar temps instead of array indexing
+    // replace instead of indexing
     ptcl1[0] = T1;
     ptcl2[0] = T2;
     for (int ii = 1; ii < nx; ii++)
