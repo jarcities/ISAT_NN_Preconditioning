@@ -699,148 +699,135 @@ static int fCVODE(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 //     return (0);
 // }
 
-static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+static int Jac(sunrealtype t, N_Vector yy, N_Vector fy,
+               SUNMatrix J, void *user_data,
+               N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-    auto *data = static_cast<UserData *>(user_data);
-
+    auto* data = static_cast<UserData*>(user_data);
     const int nSp = Gl::gas->nSpecies();
     const int NEQ = nSp + 1;
 
-    Eigen::VectorXd Y(nSp);
-    Eigen::VectorXd W(nSp);
-    Eigen::VectorXd hbar(nSp);
-    Eigen::VectorXd cpMole(nSp);
-    Eigen::VectorXd wdot(nSp);
-    Eigen::VectorXd dRhodY(nSp);
-    Eigen::VectorXd dcpdY(nSp);
-    Eigen::VectorXd dYdYbar(nSp);
-    Eigen::MatrixXd DXDY(nSp, nSp);
-    Eigen::MatrixXd dwdX(nSp, nSp);
-    Eigen::MatrixXd dwdY(nSp, nSp);
-    Eigen::MatrixXd JYY(nSp, nSp);
+    Eigen::VectorXd Y(nSp), W(nSp), hbar(nSp), cpMole(nSp), wdot(nSp);
+    Eigen::VectorXd dRhodY(nSp), dcpdY(nSp);
+    Eigen::MatrixXd DXDY(nSp,nSp), dwdX(nSp,nSp), dwdY(nSp,nSp), JYY(nSp,nSp);
     Eigen::RowVectorXd dTdY(nSp);
 
-    for (int i = 0; i < nSp; i++)
-    {
-        double Ybar = Ith(yy, i + 2);
-        double ci = data->n[i + 1];
-        double ni = data->n[NEQ + 1 + i];
-        Y(i) = ci * std::pow(std::max(Ybar, 0.0), ni);
-        double powterm = (ni > 1e-12 ? std::pow(std::max(Ybar, 0.0), ni - 1) : 1.0);
-        dYdYbar(i) = ci * ni * powterm;
+    for(int i=0;i<nSp;i++){
+        double c = data->n[i+1];
+        Y(i) = c * Ith(yy,i+2);
     }
 
-    double T = Ith(yy, 1) * data->n[nSp + 1] + data->n[0];
+    double T = Ith(yy,1)*data->n[nSp+1] + data->n[0];
     double p = data->pressure;
 
-    Gl::gas->setState_TPY(T, p, Y.data());
-
+    Gl::gas->setState_TPY(T,p,Y.data());
     Gl::gas->getPartialMolarEnthalpies(hbar.data());
     Gl::gas->getPartialMolarCp(cpMole.data());
     Gl::kinetics->getNetProductionRates(wdot.data());
 
     double rho = Gl::gas->density();
-    double cp = Gl::gas->cp_mass();
+    double cp  = Gl::gas->cp_mass();
     double Wmix = Gl::gas->meanMolecularWeight();
 
-    for (int i = 0; i < nSp; i++)
+    for(int i=0;i<nSp;i++)
         W(i) = Gl::gas->molecularWeight(i);
 
-    for (int j = 0; j < nSp; j++)
-    {
-        for (int i = 0; i < nSp; i++)
-        {
-            DXDY(j, i) =
-                (Wmix / W(j)) * (i == j) - (Wmix * Wmix) * Y(j) / (W(i) * W(j));
+    for(int j=0;j<nSp;j++){
+        for(int i=0;i<nSp;i++){
+            DXDY(j,i) =
+                (Wmix/W(j))*(i==j)
+                - (Wmix*Wmix)*Y(j)/(W(i)*W(j));
         }
     }
 
     dwdX = Gl::kinetics->netProductionRates_ddX();
     dwdY = dwdX * DXDY;
+
     double R = 8314.4621;
-    double RinvTinv = 1.0 / (R * T);
+    double RinvTinv = 1.0/(R*T);
 
-    for (int i = 0; i < nSp; i++)
-    {
-        double s = 0.0;
-        for (int j = 0; j < nSp; j++)
-            s += DXDY(j, i) * W(j);
-
-        dRhodY(i) = p * s * RinvTinv;
+    for(int i=0;i<nSp;i++){
+        double s=0.0;
+        for(int j=0;j<nSp;j++) s += DXDY(j,i)*W(j);
+        dRhodY(i) = p*s*RinvTinv;
     }
 
     dcpdY = cpMole.array() / W.array();
 
     dTdY =
-        -hbar.transpose() * ((1.0 / (rho * cp)) * dwdY - (wdot / (rho * rho * cp)) * dRhodY.transpose() - (wdot / (rho * cp * cp)) * dcpdY.transpose());
-
-    for (int j = 0; j < nSp; j++)
-        dTdY(j) /= (data->n[nSp + 1] * dYdYbar(j));
+       -hbar.transpose() * (
+            (1.0/(rho*cp))*dwdY
+          - (wdot/(rho*rho*cp))*dRhodY.transpose()
+          - (wdot/(rho*cp*cp))*dcpdY.transpose()
+        );
 
     Eigen::MatrixXd Wdiag = W.asDiagonal();
 
     JYY =
-        (Wdiag / rho) * dwdY - ((Wdiag * wdot) / (rho * rho)) * dRhodY.transpose();
+         (Wdiag/rho)*dwdY
+       - ((Wdiag*wdot)/(rho*rho)) * dRhodY.transpose();
 
-    for (int j = 0; j < nSp; j++)
-        for (int i = 0; i < nSp; i++)
-            JYY(i, j) *= (dYdYbar(i) / dYdYbar(j));
+    for(int j=0;j<nSp;j++){
+        double c_j = data->n[j+1];
+        dTdY(j) /= (data->n[nSp+1] * c_j);
+    }
+
+    for(int j=0;j<nSp;j++){
+        double c_j = data->n[j+1];
+        for(int i=0;i<nSp;i++){
+            double c_i = data->n[i+1];
+            JYY(i,j) *= (c_i/c_j);
+        }
+    }
 
     SUNSparseMatrix A = J;
     SUNSparseMatrixZero(A);
 
-    for (int j = 0; j < nSp; j++)
-        SUNSparseMatrixSet(A, 0, j + 1, dTdY(j));
+    for(int j=0;j<nSp;j++)
+        SUNSparseMatrixSet(A,0,j+1,dTdY(j));
 
-    for (int i = 0; i < nSp; i++)
-    {
-        for (int j = 0; j < nSp; j++)
-        {
-            double v = JYY(i, j);
-            if (std::abs(v) > 1e-300)
-                SUNSparseMatrixSet(A, i + 1, j + 1, v);
+    for(int i=0;i<nSp;i++){
+        for(int j=0;j<nSp;j++){
+            double v = JYY(i,j);
+            if(std::abs(v)>1e-300)
+                SUNSparseMatrixSet(A,i+1,j+1,v);
         }
     }
 
-    if (data->myNeed == 1)
+    if(data->myNeed==1)
     {
-        static Eigen::MatrixXd newSR(NEQ, NEQ);
-        static Eigen::MatrixXd Q(NEQ, NEQ);
-        static Eigen::MatrixXcd expQ(NEQ, NEQ);
+        static Eigen::MatrixXd newSR(NEQ,NEQ), Q(NEQ,NEQ);
+        static Eigen::MatrixXcd expQ(NEQ,NEQ);
 
-        for (int j = 0; j < NEQ; j++)
-        {
-            for (int i = 0; i < NEQ; i++)
-            {
-                newSR(i, j) = data->SR[i + j * NEQ];
-                Q(i, j) = SUNSparseMatrix_Get(A, i, j);
-                data->JJ[i + j * NEQ] = Q(i, j);
+        for(int j=0;j<NEQ;j++){
+            for(int i=0;i<NEQ;i++){
+                newSR(i,j)=data->SR[i+j*NEQ];
+                Q(i,j)=SUNSparseMatrix_Get(A,i,j);
+                data->JJ[i+j*NEQ]=Q(i,j);
             }
         }
 
         static Eigen::EigenSolver<Eigen::MatrixXd> es;
         es.compute(Q);
 
-        const auto &eigvals = es.eigenvalues();
-        const auto &eigvecs = es.eigenvectors();
+        const auto& eigvals = es.eigenvalues();
+        const auto& eigvecs = es.eigenvectors();
 
-        double tau = std::max(t - data->time, 0.0);
+        double tau = std::max(t-data->time,0.0);
 
-        for (int k = 0; k < NEQ; k++)
-            expQ.col(k) = eigvecs.col(k) *
-                          std::exp(tau * eigvals(k));
+        for(int k=0;k<NEQ;k++)
+            expQ.col(k)=eigvecs.col(k)*std::exp(tau*eigvals(k));
 
         expQ = expQ * eigvecs.inverse();
 
-        newSR = expQ.real() * newSR;
+        newSR = expQ.real()*newSR;
 
-        // write SR back
-        for (int j = 0; j < NEQ; j++)
-            for (int i = 0; i < NEQ; i++)
-                data->SR[i + j * NEQ] = newSR(i, j);
+        for(int j=0;j<NEQ;j++)
+            for(int i=0;i<NEQ;i++)
+                data->SR[i+j*NEQ]=newSR(i,j);
 
-        if (data->time > t)
-            data->time = t;
+        if(data->time>t)
+            data->time=t;
     }
 
     return 0;
