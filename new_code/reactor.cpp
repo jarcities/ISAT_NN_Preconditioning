@@ -702,49 +702,49 @@ static int fCVODE(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
 static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
     auto *data = static_cast<UserData *>(user_data);
+
     const int nSp = Gl::gas->nSpecies();
     const int NEQ = nSp + 1;
+
     Eigen::VectorXd Y(nSp);
     Eigen::VectorXd W(nSp);
     Eigen::VectorXd hbar(nSp);
     Eigen::VectorXd cpMole(nSp);
     Eigen::VectorXd wdot(nSp);
     Eigen::VectorXd dRhodY(nSp);
+    Eigen::VectorXd dcpdY(nSp);
+    Eigen::VectorXd dYdYbar(nSp);
     Eigen::MatrixXd DXDY(nSp, nSp);
-    Eigen::MatrixXd dwdY(nSp, nSp);
     Eigen::MatrixXd dwdX(nSp, nSp);
+    Eigen::MatrixXd dwdY(nSp, nSp);
     Eigen::MatrixXd JYY(nSp, nSp);
     Eigen::RowVectorXd dTdY(nSp);
 
-    /*get ybar*/
-    for (int k = 0; k < nSp; k++)
+    for (int i = 0; i < nSp; i++)
     {
-        double Ybar = Ith(yy, k + 2);
-        double nk = data->n[NEQ + 1 + k];
-        double fac = data->n[k + 1];
-        Y(k) = fac * std::pow(std::max(Ybar, 0.0), nk);
+        double Ybar = Ith(yy, i + 2);
+        double ci = data->n[i + 1];
+        double ni = data->n[NEQ + 1 + i];
+        Y(i) = ci * std::pow(std::max(Ybar, 0.0), ni);
+        double powterm = (ni > 1e-12 ? std::pow(std::max(Ybar, 0.0), ni - 1) : 1.0);
+        dYdYbar(i) = ci * ni * powterm;
     }
 
-    /*perturb*/
     double T = Ith(yy, 1) * data->n[nSp + 1] + data->n[0];
-    double p = Gl::gas->pressure();
+    double p = data->pressure;
 
-    /*update state*/
-    Gl::gas->setMassFractions(Y.data());
-    Gl::gas->setState_TP(T, p);
-
-    double rho = Gl::gas->density();
-    double cp = Gl::gas->cp_mass();
+    Gl::gas->setState_TPY(T, p, Y.data());
 
     Gl::gas->getPartialMolarEnthalpies(hbar.data());
     Gl::gas->getPartialMolarCp(cpMole.data());
     Gl::kinetics->getNetProductionRates(wdot.data());
 
-    for (int k = 0; k < nSp; k++)
-        W(k) = Gl::gas->molecularWeight(k);
-
-    /*build dX/dY*/
+    double rho = Gl::gas->density();
+    double cp = Gl::gas->cp_mass();
     double Wmix = Gl::gas->meanMolecularWeight();
+
+    for (int i = 0; i < nSp; i++)
+        W(i) = Gl::gas->molecularWeight(i);
 
     for (int j = 0; j < nSp; j++)
     {
@@ -755,11 +755,8 @@ static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_
         }
     }
 
-    /*mass fraction derivative*/
     dwdX = Gl::kinetics->netProductionRates_ddX();
     dwdY = dwdX * DXDY;
-
-    /*density derivative*/
     double R = 8314.4621;
     double RinvTinv = 1.0 / (R * T);
 
@@ -772,35 +769,23 @@ static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_
         dRhodY(i) = p * s * RinvTinv;
     }
 
-    /*temperature derivative*/
-    Eigen::VectorXd dcpdY = cpMole.array() / W.array(); // ∂cp/∂Yi
+    dcpdY = cpMole.array() / W.array();
 
     dTdY =
         -hbar.transpose() * ((1.0 / (rho * cp)) * dwdY - (wdot / (rho * rho * cp)) * dRhodY.transpose() - (wdot / (rho * cp * cp)) * dcpdY.transpose());
 
-    /*species dervative*/
+    for (int j = 0; j < nSp; j++)
+        dTdY(j) /= (data->n[nSp + 1] * dYdYbar(j));
+
     Eigen::MatrixXd Wdiag = W.asDiagonal();
 
     JYY =
         (Wdiag / rho) * dwdY - ((Wdiag * wdot) / (rho * rho)) * dRhodY.transpose();
 
-    /*normalize ???*/
-    Eigen::VectorXd dYbardY(nSp);
-    for (int k = 0; k < nSp; k++)
-    {
-        double nk = data->n[NEQ + 1 + k];
-        double fac = data->n[k + 1];
-        dYbardY(k) = (1.0 / nk) * (1.0 / fac) * std::pow(Y(k) / fac, (1.0 / nk) - 1.0);
-    }
-
-    for (int j = 0; j < nSp; j++)
-        dTdY(j) /= (data->n[NEQ] * dYbardY(j));
-
     for (int j = 0; j < nSp; j++)
         for (int i = 0; i < nSp; i++)
-            JYY(i, j) *= dYbardY(i) / dYbardY(j);
+            JYY(i, j) *= (dYdYbar(i) / dYdYbar(j));
 
-    /*use sparse matrix*/
     SUNSparseMatrix A = J;
     SUNSparseMatrixZero(A);
 
@@ -823,13 +808,13 @@ static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_
         static Eigen::MatrixXd Q(NEQ, NEQ);
         static Eigen::MatrixXcd expQ(NEQ, NEQ);
 
-        for (int jj = 0; jj < NEQ; jj++)
+        for (int j = 0; j < NEQ; j++)
         {
-            for (int ii = 0; ii < NEQ; ii++)
+            for (int i = 0; i < NEQ; i++)
             {
-                newSR(ii, jj) = data->SR[ii + jj * NEQ];
-                Q(ii, jj) = SUNSparseMatrix_Get(A, ii, jj);
-                data->JJ[ii + jj * NEQ] = Q(ii, jj);
+                newSR(i, j) = data->SR[i + j * NEQ];
+                Q(i, j) = SUNSparseMatrix_Get(A, i, j);
+                data->JJ[i + j * NEQ] = Q(i, j);
             }
         }
 
@@ -839,17 +824,20 @@ static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_
         const auto &eigvals = es.eigenvalues();
         const auto &eigvecs = es.eigenvectors();
 
+        double tau = std::max(t - data->time, 0.0);
+
         for (int k = 0; k < NEQ; k++)
-            expQ.col(k) =
-                eigvecs.col(k) * std::exp(std::max(t - data->time, 0.0) * eigvals(k));
+            expQ.col(k) = eigvecs.col(k) *
+                          std::exp(tau * eigvals(k));
 
         expQ = expQ * eigvecs.inverse();
 
         newSR = expQ.real() * newSR;
 
-        for (int jj = 0; jj < NEQ; jj++)
-            for (int ii = 0; ii < NEQ; ii++)
-                data->SR[ii + jj * NEQ] = newSR(ii, jj);
+        // write SR back
+        for (int j = 0; j < NEQ; j++)
+            for (int i = 0; i < NEQ; i++)
+                data->SR[i + j * NEQ] = newSR(i, j);
 
         if (data->time > t)
             data->time = t;
