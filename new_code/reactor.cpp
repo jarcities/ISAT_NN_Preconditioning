@@ -346,7 +346,7 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
     //     std::cout << maxcol << " " << maxJ << " " << dt - data->time << std::endl;
     // }
 
-    // LU FACTORIZATION
+    // LU FACTORIZATION LINEAR SOLVER
     if (need[1] == 1)
     {
         Eigen::MatrixXd J(NEQ, NEQ);
@@ -520,9 +520,124 @@ static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_
     int retvaljac, imax, jmax;
     double maxJac, meanJac, dd;
 
-    int nSp = Gl::gas->nSpecies();
+    // int nSp = Gl::gas->nSpecies();
 
     /////////////////////// ANALYTICAL ///////////////////////
+    auto* data = (UserData) user_data;
+    int nSp = Gl::gas->nSpecies();
+
+    double T = Ith(yy,1) * data->n[nSp+1] + data->n[0];
+    double p = Gl::gas->pressure();
+
+    Eigen::VectorXd Y(nSp);
+    for(int i=0;i<nSp;i++)
+        Y(i) = data->n[i+1] * Ith(yy,i+2);
+
+    double sumY = Y.sum();
+    Eigen::VectorXd Ynorm = Y / sumY;
+
+    Gl::gas->setState_TPY(T,p,Ynorm.data());
+
+    Eigen::VectorXd hbar(nSp), cpMole(nSp), wdot(nSp);
+    Gl::gas->getPartialMolarEnthalpies(hbar.data());
+    Gl::gas->getPartialMolarCp(cpMole.data());
+    Gl::kinetics->getNetProductionRates(wdot.data());
+
+    double rho = Gl::gas->density();
+    double cp  = Gl::gas->cp_mass();
+    double Wmix = Gl::gas->meanMolecularWeight();
+
+    Eigen::VectorXd W(nSp);
+    for(int i=0;i<nSp;i++)
+        W(i) = Gl::gas->molecularWeight(i);
+
+    Eigen::MatrixXd dYnorm_dY(nSp,nSp);
+    for(int j=0;j<nSp;j++)
+        for(int i=0;i<nSp;i++)
+            dYnorm_dY(i,j) = (i==j ? (1.0 - Ynorm(i)) : -Ynorm(i)) / sumY;
+
+    double D = 0.0;
+    for(int i=0;i<nSp;i++)
+        D += Ynorm(i)/W(i);
+
+    Eigen::MatrixXd dXdYnorm(nSp,nSp);
+    for(int k=0;k<nSp;k++){
+        double Xk = (Ynorm(k)/W(k))/D;
+        for(int j=0;j<nSp;j++){
+            double num = (j==k ? 1.0/(W(k)*D) : 0.0);
+            double den = (Ynorm(k)/W(k))/(D*D) * (1.0/W(j));
+            dXdYnorm(k,j) = num - den;
+        }
+    }
+
+    Eigen::MatrixXd dXdY(nSp,nSp);
+    dXdY = dXdYnorm * dYnorm_dY;
+
+    Eigen::MatrixXd dwdX = Gl::kinetics->netProductionRates_ddX();
+    Eigen::MatrixXd dwdY = dwdX * dXdY;
+
+    Eigen::VectorXd drhody(nSp);
+    for(int j=0;j<nSp;j++){
+        double dWmix = - (Wmix*Wmix)/W(j);
+        drhody(j) = p/(8314.4621*T) * dWmix;
+    }
+
+    double hdot = 0.0;
+    for(int i=0;i<nSp;i++)
+        hdot += hbar(i)*wdot(i);
+
+    Eigen::VectorXd dcpdY(nSp);
+    for(int j=0;j<nSp;j++){
+        double v = 0.0;
+        for(int i=0;i<nSp;i++)
+            v += (cpMole(i)/W(i)) * dYnorm_dY(i,j);
+        dcpdY(j) = v;
+    }
+
+    Eigen::RowVectorXd dTdY(nSp);
+    for(int j=0;j<nSp;j++){
+        double term1 = 0.0;
+        for(int i=0;i<nSp;i++)
+            term1 += hbar(i) * dwdY(i,j);
+        double term2 = 0.0;
+        for(int i=0;i<nSp;i++)
+            term2 += hbar(i) * wdot(i) * drhody(j);
+        double term3 = hdot * dcpdY(j);
+        dTdY(j) = -(term1/(rho*cp)) + (term2/(rho*rho*cp)) + (term3/(rho*cp*cp));
+    }
+
+    double dTdT = 0.0;
+    double epsT = 1e-6 * T;
+    Gl::gas->setState_TPY(T+epsT,p,Ynorm.data());
+    double hdot_up = 0.0;
+    Gl::kinetics->getNetProductionRates(wdot.data());
+    Gl::gas->getPartialMolarEnthalpies(hbar.data());
+    for(int i=0;i<nSp;i++)
+        hdot_up += hbar(i)*wdot(i);
+    double rho_up = Gl::gas->density();
+    double cp_up  = Gl::gas->cp_mass();
+    double dTdt_up = -hdot_up/(rho_up*cp_up);
+    Gl::gas->setState_TPY(T,p,Ynorm.data());
+    double dTdt = -hdot/(rho*cp);
+    dTdT = (dTdt_up - dTdt)/epsT;
+
+    IJth(J,1,1) = dTdT * data->n[nSp+1];
+
+    for(int j=0;j<nSp;j++)
+        IJth(J,1,j+2) = dTdY(j) * data->n[j+1];
+
+    Eigen::MatrixXd dYdt_dY(nSp,nSp);
+    for(int i=0;i<nSp;i++){
+        for(int j=0;j<nSp;j++){
+            double v1 = (W(i)/rho)*dwdY(i,j);
+            double v2 = (W(i)*wdot(i)/(rho*rho))*drhody(j);
+            dYdt_dY(i,j) = v1 - v2;
+        }
+    }
+
+    for(int i=0;i<nSp;i++)
+        for(int j=0;j<nSp;j++)
+            IJth(J,i+2,j+2) = dYdt_dY(i,j) * data->n[j+1];
     /*sunrealtype hbar[NEQ-1], wdot[NEQ-1], Y[NEQ-1], cpMole[NEQ-1], cpMass[NEQ-1], dTdYi[NEQ-1], dYbardY[NEQ-1], T, pressure, Rbar, RbarTinv, rho, cp;
 
     sunrealtype dRhodYi[NEQ-1];
@@ -606,34 +721,35 @@ static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_
 
     }*/
 
-    /////////////////////// NUMERICAL ///////////////////////
-    for (int ii = 0; ii < NEQ; ii++)
-    {
-        Ith(tmp2, ii + 1) = Ith(yy, ii + 1);
-    }
+    // /////////////////////// NUMERICAL ///////////////////////
+    // for (int ii = 0; ii < NEQ; ii++)
+    // {
+    //     Ith(tmp2, ii + 1) = Ith(yy, ii + 1);
+    // }
 
-    retvaljac = fCVODE(t, tmp2, tmp3, user_data);
+    // retvaljac = fCVODE(t, tmp2, tmp3, user_data);
 
-    for (int jj = 0; jj < NEQ; jj++)
-    {
+    // for (int jj = 0; jj < NEQ; jj++)
+    // {
 
-        for (int ii = 0; ii < NEQ; ii++)
-        {
-            Ith(tmp1, ii + 1) = Ith(yy, ii + 1);
-        }
+    //     for (int ii = 0; ii < NEQ; ii++)
+    //     {
+    //         Ith(tmp1, ii + 1) = Ith(yy, ii + 1);
+    //     }
 
-        dd = 1e-5;
+    //     dd = 1e-5;
 
-        Ith(tmp1, jj + 1) = Ith(yy, jj + 1) + SUN_RCONST(dd);
+    //     Ith(tmp1, jj + 1) = Ith(yy, jj + 1) + SUN_RCONST(dd);
 
-        retvaljac = fCVODE(t, tmp1, fy, user_data);
+    //     retvaljac = fCVODE(t, tmp1, fy, user_data);
 
-        for (int ii = 0; ii < NEQ; ii++)
-        {
-            IJth(J, ii + 1, jj + 1) = (Ith(fy, ii + 1) - Ith(tmp3, ii + 1)) / SUN_RCONST(dd);
-        }
-    }
+    //     for (int ii = 0; ii < NEQ; ii++)
+    //     {
+    //         IJth(J, ii + 1, jj + 1) = (Ith(fy, ii + 1) - Ith(tmp3, ii + 1)) / SUN_RCONST(dd);
+    //     }
+    // }
 
+    /////////////////////// OTHER STUFF ///////////////////////
     if (data->myNeed == 1)
     {
 
