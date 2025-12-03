@@ -342,7 +342,7 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
     //     std::cout << maxcol << " " << maxJ << " " << dt - data->time << std::endl;
     // }
 
-    // LU FACTORIZATION 
+    // LU FACTORIZATION
     if (need[1] == 1)
     {
         Eigen::MatrixXd J(NEQ, NEQ);
@@ -357,7 +357,7 @@ void myfgh(int need[], int &nx, double x[], int &nf, int &nh, int iusr[],
         }
 
         // form g(x) = S(delta t) - I
-        double tau = std::max(dt - data->time, 0.0);   
+        double tau = std::max(dt - data->time, 0.0);
         Eigen::MatrixXd A = Eigen::MatrixXd::Identity(NEQ, NEQ) - tau * J;
 
         // lu factorization
@@ -510,191 +510,352 @@ static int fCVODE(sunrealtype t, N_Vector y, N_Vector ydot, void *user_data)
     return (0);
 }
 
+// static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+// {
+
+//     int retvaljac, imax, jmax;
+//     double maxJac, meanJac, dd;
+
+//     int nSp = Gl::gas->nSpecies();
+
+//     /////////////////////// ANALYTICAL ///////////////////////
+//     /*sunrealtype hbar[NEQ-1], wdot[NEQ-1], Y[NEQ-1], cpMole[NEQ-1], cpMass[NEQ-1], dTdYi[NEQ-1], dYbardY[NEQ-1], T, pressure, Rbar, RbarTinv, rho, cp;
+
+//     sunrealtype dRhodYi[NEQ-1];
+
+//     Eigen::SparseMatrix< double > ddX(NEQ-1,NEQ-1), dXjdYi(NEQ-1,NEQ-1), dWjdYi(NEQ-1,NEQ-1), dYjdtdYi(NEQ-1,NEQ-1), J2(NEQ,NEQ);
+
+//     Rbar = SUN_RCONST(8314.4621);
+
+//     pressure   = Gl::gas->pressure();
+
+//     T = (Ith(yy,1)*data->n[nSp+1])+data->n[0];
+
+//     RbarTinv = 1.0/(Rbar*T);
+
+//     for (int ii=0; ii < nSp; ii++){Y[ii] = data->n[ii+1]*(std::pow(std::max(Ith(yy,ii+2),0.0),data->n[ii+1+NEQ]));}
+
+//     Gl::gas->setMassFractions(&Y[0]);
+//     Gl::gas->setState_TP(T,pressure);
+//     Gl::gas->getPartialMolarEnthalpies(&hbar[0]);
+//     Gl::gas->getPartialMolarCp(&cpMole[0]);
+//     Gl::kinetics->getNetProductionRates(&wdot[0]);
+//     rho = Gl::gas->density();
+//     cp = Gl::gas->cp_mass();
+
+//     for ( int jj = 0; jj < NEQ-1; jj++ ){
+//         for ( int ii = 0; ii < NEQ-1; ii++){
+//             dXjdYi.coeffRef(jj,ii) = Gl::gas->meanMolecularWeight()*double(int(ii==jj))/Gl::gas->molecularWeight(ii)
+//                 - (Gl::gas->meanMolecularWeight()*Gl::gas->meanMolecularWeight())*Y[jj]/(Gl::gas->molecularWeight(ii)*Gl::gas->molecularWeight(jj));
+
+//             dRhodYi[ii] += pressure*dXjdYi.coeffRef(jj,ii)*Gl::gas->molecularWeight(jj)*RbarTinv;
+//         }
+//     }
+
+//     ddX = Gl::kinetics->netProductionRates_ddX();
+
+//     dWjdYi = ddX*dXjdYi;
+
+//     for ( int ii = 0; ii < NEQ-1; ii++ ){
+//         dTdYi[ii] = 0.0;
+//         for ( int jj = 0; jj < NEQ-1; jj++){
+//             dTdYi[ii] += -hbar[jj]*( dWjdYi.coeffRef(jj,ii)/(rho*cp) - wdot[jj]*dRhodYi[ii]/(rho*rho*cp) - wdot[jj]*cpMole[ii]/(Gl::gas->molecularWeight(ii)*rho*cp*cp) );
+//             dYjdtdYi.coeffRef(jj,ii) = dWjdYi.coeffRef(jj,ii)*Gl::gas->molecularWeight(jj)/rho - wdot[jj]*Gl::gas->molecularWeight(jj)*dRhodYi[ii]/(rho*rho);
+//         }
+//     }
+
+//     for ( int ii = 0; ii < NEQ; ii++){
+//         Ith(tmp2,ii+1) = Ith(yy,ii+1);
+//     }
+//     Ith(tmp2,1) = Ith(tmp2,1) - 1e-5;
+
+//     retvaljac = fCVODE(t, tmp2, tmp3, user_data);
+
+//     for ( int ii = 0; ii < NEQ; ii++){
+//         Ith(tmp1,ii+1) = Ith(yy,ii+1);
+//     }
+//     Ith(tmp1,1) = Ith(tmp1,1) + 1e-5;
+
+//     retvaljac = fCVODE(t, tmp1, fy, user_data);
+
+//     for ( int ii = 0; ii < NEQ; ii++ ){
+//         //IJth(J,ii+1,1) = (Ith(fy,ii+1) - Ith(tmp3,ii+1))/2e-5;
+//         J2.coeffRef(ii,0) = (Ith(fy,ii+1) - Ith(tmp3,ii+1))/2e-5;
+//     }
+
+//     for ( int ii = 0; ii < NEQ-1; ii++ ){
+//         dYbardY[ii] = (1.0/data->n[ii+1+NEQ])*(1.0/data->n[ii+1])*std::pow(Y[ii]/data->n[ii+1], (1.0/data->n[ii+1+NEQ])-1.0);
+//     }
+
+//     for ( int jj = 1; jj < NEQ; jj++ ){
+//         IJth(J,1,jj+1) = dTdYi[jj-1]/(data->n[NEQ]*dYbardY[jj-1]);    //temperature sensitivity
+//         //J2.coeffRef(0,jj) = dTdYi[jj-1]/(data->n[NEQ]*dYbardY[jj-1]);    //temperature sensitivity
+
+//         for ( int ii = 1; ii < NEQ; ii++){
+//             IJth(J,ii+1,jj+1) = dYjdtdYi.coeffRef(ii-1,jj-1)*dYbardY[ii-1]/dYbardY[jj-1]; //species sensitivity
+//             //J2.coeffRef(ii,jj) = dYjdtdYi.coeffRef(ii-1,jj-1)*dYbardY[ii-1]/dYbardY[jj-1]; //species sensitivity
+//             if ( (ii == 154)&(jj == 154) ){
+//                 //std::cerr << J2.coeffRef(ii,jj) << " " << dYjdtdYi.coeffRef(ii-1,jj-1) << " " << dYbardY[ii-1] << std::endl;
+//                 //std::cerr << dWjdYi.coeffRef(jj-1,ii-1)*Gl::gas->molecularWeight(jj-1)/rho << " " << wdot[jj-1]*Gl::gas->molecularWeight(jj-1)*dRhodYi[ii-1]/(rho*rho) << " " << ddX.coeffRef(jj-1,ii-1) << std::endl;
+//             }
+//         }
+
+//     }*/
+
+//     /////////////////////// NUMERICAL ///////////////////////
+//     for (int ii = 0; ii < NEQ; ii++)
+//     {
+//         Ith(tmp2, ii + 1) = Ith(yy, ii + 1);
+//     }
+
+//     retvaljac = fCVODE(t, tmp2, tmp3, user_data);
+
+//     for (int jj = 0; jj < NEQ; jj++)
+//     {
+
+//         for (int ii = 0; ii < NEQ; ii++)
+//         {
+//             Ith(tmp1, ii + 1) = Ith(yy, ii + 1);
+//         }
+
+//         dd = 1e-5;
+
+//         Ith(tmp1, jj + 1) = Ith(yy, jj + 1) + SUN_RCONST(dd);
+
+//         retvaljac = fCVODE(t, tmp1, fy, user_data);
+
+//         for (int ii = 0; ii < NEQ; ii++)
+//         {
+//             IJth(J, ii + 1, jj + 1) = (Ith(fy, ii + 1) - Ith(tmp3, ii + 1)) / SUN_RCONST(dd);
+//         }
+//     }
+
+//     if (data->myNeed == 1)
+//     {
+
+//         // static eigen arrays
+//         static Eigen::MatrixXd newSR(NEQ, NEQ), Q(NEQ, NEQ);
+//         static Eigen::MatrixXcd expQ(NEQ, NEQ);
+
+//         for (int jj = 0; jj < NEQ; jj++)
+//         {
+//             for (int ii = 0; ii < NEQ; ii++)
+//             {
+//                 newSR.coeffRef(ii, jj) = data->SR[ii + jj * NEQ];
+//                 Q.coeffRef(ii, ii) = IJth(J, ii + 1, ii + 1);
+//                 data->JJ[ii + jj * NEQ] = IJth(J, ii + 1, jj + 1);
+//             }
+//         }
+
+//         // static eigen arrays
+//         static Eigen::EigenSolver<Eigen::MatrixXd> es;
+
+//         for (int jj = 0; jj < NEQ; jj++)
+//         {
+//             for (int ii = 0; ii < NEQ; ii++)
+//             {
+//                 newSR.coeffRef(ii, jj) = data->SR[ii + jj * NEQ];
+//                 Q.coeffRef(ii, jj) = data->JJ[ii + jj * NEQ];
+//             }
+//         }
+
+//         es.compute(Q);
+
+//         // static eigen arrays
+//         const Eigen::VectorXcd &eigenvalues = es.eigenvalues();
+//         const Eigen::MatrixXcd &eigenvectors = es.eigenvectors();
+
+//         // for (int jj = 0; jj < NEQ; jj++)
+//         // {
+//         //     for (int ii = 0; ii < NEQ; ii++)
+//         //     {
+//         //     }
+//         // }
+
+//         for (int ii = 0; ii < NEQ; ii++)
+//         {
+//             expQ.col(ii) = eigenvectors.col(ii) * std::exp(std::max((t - data->time), 0.0) * eigenvalues.coeffRef(ii));
+//         }
+
+//         expQ = expQ * eigenvectors.inverse();
+
+//         newSR = expQ.real() * newSR;
+
+//         for (int jj = 0; jj < NEQ; jj++)
+//         {
+//             for (int ii = 0; ii < NEQ; ii++)
+//             {
+//                 data->SR[ii + jj * NEQ] = newSR.coeffRef(ii, jj);
+//             }
+//         }
+
+//         if (data->time > t)
+//         {
+
+//             data->time = t;
+//         }
+//     }
+
+//     return (0);
+// }
+
 static int Jac(sunrealtype t, N_Vector yy, N_Vector fy, SUNMatrix J, void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
+    auto *data = static_cast<UserData *>(user_data);
+    const int nSp = Gl::gas->nSpecies();
+    const int NEQ = nSp + 1;
+    Eigen::VectorXd Y(nSp);
+    Eigen::VectorXd W(nSp);
+    Eigen::VectorXd hbar(nSp);
+    Eigen::VectorXd cpMole(nSp);
+    Eigen::VectorXd wdot(nSp);
+    Eigen::VectorXd dRhodY(nSp);
+    Eigen::MatrixXd DXDY(nSp, nSp);
+    Eigen::MatrixXd dwdY(nSp, nSp);
+    Eigen::MatrixXd dwdX(nSp, nSp);
+    Eigen::MatrixXd JYY(nSp, nSp);
+    Eigen::RowVectorXd dTdY(nSp);
 
-    int retvaljac, imax, jmax;
-    double maxJac, meanJac, dd;
-
-    int nSp = Gl::gas->nSpecies();
-
-    /*sunrealtype hbar[NEQ-1], wdot[NEQ-1], Y[NEQ-1], cpMole[NEQ-1], cpMass[NEQ-1], dTdYi[NEQ-1], dYbardY[NEQ-1], T, pressure, Rbar, RbarTinv, rho, cp;
-
-    sunrealtype dRhodYi[NEQ-1];
-
-    Eigen::SparseMatrix< double > ddX(NEQ-1,NEQ-1), dXjdYi(NEQ-1,NEQ-1), dWjdYi(NEQ-1,NEQ-1), dYjdtdYi(NEQ-1,NEQ-1), J2(NEQ,NEQ);
-
-    Rbar = SUN_RCONST(8314.4621);
-
-    pressure   = Gl::gas->pressure();
-
-    T = (Ith(yy,1)*data->n[nSp+1])+data->n[0];
-
-    RbarTinv = 1.0/(Rbar*T);
-
-    for (int ii=0; ii < nSp; ii++){Y[ii] = data->n[ii+1]*(std::pow(std::max(Ith(yy,ii+2),0.0),data->n[ii+1+NEQ]));}
-
-    Gl::gas->setMassFractions(&Y[0]);
-    Gl::gas->setState_TP(T,pressure);
-    Gl::gas->getPartialMolarEnthalpies(&hbar[0]);
-    Gl::gas->getPartialMolarCp(&cpMole[0]);
-    Gl::kinetics->getNetProductionRates(&wdot[0]);
-    rho = Gl::gas->density();
-    cp = Gl::gas->cp_mass();
-
-    for ( int jj = 0; jj < NEQ-1; jj++ ){
-        for ( int ii = 0; ii < NEQ-1; ii++){
-            dXjdYi.coeffRef(jj,ii) = Gl::gas->meanMolecularWeight()*double(int(ii==jj))/Gl::gas->molecularWeight(ii)
-                - (Gl::gas->meanMolecularWeight()*Gl::gas->meanMolecularWeight())*Y[jj]/(Gl::gas->molecularWeight(ii)*Gl::gas->molecularWeight(jj));
-
-            dRhodYi[ii] += pressure*dXjdYi.coeffRef(jj,ii)*Gl::gas->molecularWeight(jj)*RbarTinv;
-        }
-    }
-
-    ddX = Gl::kinetics->netProductionRates_ddX();
-
-    dWjdYi = ddX*dXjdYi;
-
-    for ( int ii = 0; ii < NEQ-1; ii++ ){
-        dTdYi[ii] = 0.0;
-        for ( int jj = 0; jj < NEQ-1; jj++){
-            dTdYi[ii] += -hbar[jj]*( dWjdYi.coeffRef(jj,ii)/(rho*cp) - wdot[jj]*dRhodYi[ii]/(rho*rho*cp) - wdot[jj]*cpMole[ii]/(Gl::gas->molecularWeight(ii)*rho*cp*cp) );
-            dYjdtdYi.coeffRef(jj,ii) = dWjdYi.coeffRef(jj,ii)*Gl::gas->molecularWeight(jj)/rho - wdot[jj]*Gl::gas->molecularWeight(jj)*dRhodYi[ii]/(rho*rho);
-        }
-    }
-
-    for ( int ii = 0; ii < NEQ; ii++){
-        Ith(tmp2,ii+1) = Ith(yy,ii+1);
-    }
-    Ith(tmp2,1) = Ith(tmp2,1) - 1e-5;
-
-    retvaljac = fCVODE(t, tmp2, tmp3, user_data);
-
-    for ( int ii = 0; ii < NEQ; ii++){
-        Ith(tmp1,ii+1) = Ith(yy,ii+1);
-    }
-    Ith(tmp1,1) = Ith(tmp1,1) + 1e-5;
-
-    retvaljac = fCVODE(t, tmp1, fy, user_data);
-
-    for ( int ii = 0; ii < NEQ; ii++ ){
-        //IJth(J,ii+1,1) = (Ith(fy,ii+1) - Ith(tmp3,ii+1))/2e-5;
-        J2.coeffRef(ii,0) = (Ith(fy,ii+1) - Ith(tmp3,ii+1))/2e-5;
-    }
-
-    for ( int ii = 0; ii < NEQ-1; ii++ ){
-        dYbardY[ii] = (1.0/data->n[ii+1+NEQ])*(1.0/data->n[ii+1])*std::pow(Y[ii]/data->n[ii+1], (1.0/data->n[ii+1+NEQ])-1.0);
-    }
-
-    for ( int jj = 1; jj < NEQ; jj++ ){
-        IJth(J,1,jj+1) = dTdYi[jj-1]/(data->n[NEQ]*dYbardY[jj-1]);    //temperature sensitivity
-        //J2.coeffRef(0,jj) = dTdYi[jj-1]/(data->n[NEQ]*dYbardY[jj-1]);    //temperature sensitivity
-
-        for ( int ii = 1; ii < NEQ; ii++){
-            IJth(J,ii+1,jj+1) = dYjdtdYi.coeffRef(ii-1,jj-1)*dYbardY[ii-1]/dYbardY[jj-1]; //species sensitivity
-            //J2.coeffRef(ii,jj) = dYjdtdYi.coeffRef(ii-1,jj-1)*dYbardY[ii-1]/dYbardY[jj-1]; //species sensitivity
-            if ( (ii == 154)&(jj == 154) ){
-                //std::cerr << J2.coeffRef(ii,jj) << " " << dYjdtdYi.coeffRef(ii-1,jj-1) << " " << dYbardY[ii-1] << std::endl;
-                //std::cerr << dWjdYi.coeffRef(jj-1,ii-1)*Gl::gas->molecularWeight(jj-1)/rho << " " << wdot[jj-1]*Gl::gas->molecularWeight(jj-1)*dRhodYi[ii-1]/(rho*rho) << " " << ddX.coeffRef(jj-1,ii-1) << std::endl;
-            }
-        }
-
-    }*/
-
-    for (int ii = 0; ii < NEQ; ii++)
+    /*get ybar*/
+    for (int k = 0; k < nSp; k++)
     {
-        Ith(tmp2, ii + 1) = Ith(yy, ii + 1);
+        double Ybar = Ith(yy, k + 2);
+        double nk = data->n[NEQ + 1 + k];
+        double fac = data->n[k + 1];
+        Y(k) = fac * std::pow(std::max(Ybar, 0.0), nk);
     }
 
-    retvaljac = fCVODE(t, tmp2, tmp3, user_data);
+    /*perturb*/
+    double T = Ith(yy, 1) * data->n[nSp + 1] + data->n[0];
+    double p = Gl::gas->pressure();
 
-    for (int jj = 0; jj < NEQ; jj++)
+    /*update state*/
+    Gl::gas->setMassFractions(Y.data());
+    Gl::gas->setState_TP(T, p);
+
+    double rho = Gl::gas->density();
+    double cp = Gl::gas->cp_mass();
+
+    Gl::gas->getPartialMolarEnthalpies(hbar.data());
+    Gl::gas->getPartialMolarCp(cpMole.data());
+    Gl::kinetics->getNetProductionRates(wdot.data());
+
+    for (int k = 0; k < nSp; k++)
+        W(k) = Gl::gas->molecularWeight(k);
+
+    /*build dX/dY*/
+    double Wmix = Gl::gas->meanMolecularWeight();
+
+    for (int j = 0; j < nSp; j++)
     {
-
-        for (int ii = 0; ii < NEQ; ii++)
+        for (int i = 0; i < nSp; i++)
         {
-            Ith(tmp1, ii + 1) = Ith(yy, ii + 1);
+            DXDY(j, i) =
+                (Wmix / W(j)) * (i == j) - (Wmix * Wmix) * Y(j) / (W(i) * W(j));
         }
+    }
 
-        dd = 1e-5;
+    /*mass fraction derivative*/
+    dwdX = Gl::kinetics->netProductionRates_ddX();
+    dwdY = dwdX * DXDY;
 
-        Ith(tmp1, jj + 1) = Ith(yy, jj + 1) + SUN_RCONST(dd);
+    /*density derivative*/
+    double R = 8314.4621;
+    double RinvTinv = 1.0 / (R * T);
 
-        retvaljac = fCVODE(t, tmp1, fy, user_data);
+    for (int i = 0; i < nSp; i++)
+    {
+        double s = 0.0;
+        for (int j = 0; j < nSp; j++)
+            s += DXDY(j, i) * W(j);
 
-        for (int ii = 0; ii < NEQ; ii++)
+        dRhodY(i) = p * s * RinvTinv;
+    }
+
+    /*temperature derivative*/
+    Eigen::VectorXd dcpdY = cpMole.array() / W.array(); // ∂cp/∂Yi
+
+    dTdY =
+        -hbar.transpose() * ((1.0 / (rho * cp)) * dwdY - (wdot / (rho * rho * cp)) * dRhodY.transpose() - (wdot / (rho * cp * cp)) * dcpdY.transpose());
+
+    /*species dervative*/
+    Eigen::MatrixXd Wdiag = W.asDiagonal();
+
+    JYY =
+        (Wdiag / rho) * dwdY - ((Wdiag * wdot) / (rho * rho)) * dRhodY.transpose();
+
+    /*normalize ???*/
+    Eigen::VectorXd dYbardY(nSp);
+    for (int k = 0; k < nSp; k++)
+    {
+        double nk = data->n[NEQ + 1 + k];
+        double fac = data->n[k + 1];
+        dYbardY(k) = (1.0 / nk) * (1.0 / fac) * std::pow(Y(k) / fac, (1.0 / nk) - 1.0);
+    }
+
+    for (int j = 0; j < nSp; j++)
+        dTdY(j) /= (data->n[NEQ] * dYbardY(j));
+
+    for (int j = 0; j < nSp; j++)
+        for (int i = 0; i < nSp; i++)
+            JYY(i, j) *= dYbardY(i) / dYbardY(j);
+
+    /*use sparse matrix*/
+    SUNSparseMatrix A = J;
+    SUNSparseMatrixZero(A);
+
+    for (int j = 0; j < nSp; j++)
+        SUNSparseMatrixSet(A, 0, j + 1, dTdY(j));
+
+    for (int i = 0; i < nSp; i++)
+    {
+        for (int j = 0; j < nSp; j++)
         {
-            IJth(J, ii + 1, jj + 1) = (Ith(fy, ii + 1) - Ith(tmp3, ii + 1)) / SUN_RCONST(dd);
+            double v = JYY(i, j);
+            if (std::abs(v) > 1e-300)
+                SUNSparseMatrixSet(A, i + 1, j + 1, v);
         }
     }
 
     if (data->myNeed == 1)
     {
-
-        // static eigen arrays
-        static Eigen::MatrixXd newSR(NEQ, NEQ), Q(NEQ, NEQ);
+        static Eigen::MatrixXd newSR(NEQ, NEQ);
+        static Eigen::MatrixXd Q(NEQ, NEQ);
         static Eigen::MatrixXcd expQ(NEQ, NEQ);
 
         for (int jj = 0; jj < NEQ; jj++)
         {
             for (int ii = 0; ii < NEQ; ii++)
             {
-                newSR.coeffRef(ii, jj) = data->SR[ii + jj * NEQ];
-                Q.coeffRef(ii, ii) = IJth(J, ii + 1, ii + 1);
-                data->JJ[ii + jj * NEQ] = IJth(J, ii + 1, jj + 1);
+                newSR(ii, jj) = data->SR[ii + jj * NEQ];
+                Q(ii, jj) = SUNSparseMatrix_Get(A, ii, jj);
+                data->JJ[ii + jj * NEQ] = Q(ii, jj);
             }
         }
 
-        // static eigen arrays
         static Eigen::EigenSolver<Eigen::MatrixXd> es;
-
-        for (int jj = 0; jj < NEQ; jj++)
-        {
-            for (int ii = 0; ii < NEQ; ii++)
-            {
-                newSR.coeffRef(ii, jj) = data->SR[ii + jj * NEQ];
-                Q.coeffRef(ii, jj) = data->JJ[ii + jj * NEQ];
-            }
-        }
-
         es.compute(Q);
 
-        // static eigen arrays
-        const Eigen::VectorXcd& eigenvalues = es.eigenvalues();
-        const Eigen::MatrixXcd& eigenvectors = es.eigenvectors();
+        const auto &eigvals = es.eigenvalues();
+        const auto &eigvecs = es.eigenvectors();
 
-        for (int jj = 0; jj < NEQ; jj++)
-        {
-            for (int ii = 0; ii < NEQ; ii++)
-            {
-            }
-        }
+        for (int k = 0; k < NEQ; k++)
+            expQ.col(k) =
+                eigvecs.col(k) * std::exp(std::max(t - data->time, 0.0) * eigvals(k));
 
-        for (int ii = 0; ii < NEQ; ii++)
-        {
-            expQ.col(ii) = eigenvectors.col(ii) * std::exp(std::max((t - data->time), 0.0) * eigenvalues.coeffRef(ii));
-        }
-
-        expQ = expQ * eigenvectors.inverse();
+        expQ = expQ * eigvecs.inverse();
 
         newSR = expQ.real() * newSR;
 
         for (int jj = 0; jj < NEQ; jj++)
-        {
             for (int ii = 0; ii < NEQ; ii++)
-            {
-                data->SR[ii + jj * NEQ] = newSR.coeffRef(ii, jj);
-            }
-        }
+                data->SR[ii + jj * NEQ] = newSR(ii, jj);
 
         if (data->time > t)
-        {
-
             data->time = t;
-        }
     }
 
-    return (0);
+    return 0;
 }
 
 static int ewt(N_Vector y, N_Vector w, void *user_data)
