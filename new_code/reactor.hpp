@@ -13,6 +13,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 #include <unsupported/Eigen/MatrixFunctions>
+#include <sunmatrix/sunmatrix_sparse.h> /*ADDED*/
 
 #ifndef SUN_COMM_NULL
 #define SUN_COMM_NULL NULL

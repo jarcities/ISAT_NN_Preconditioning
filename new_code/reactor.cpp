@@ -72,8 +72,12 @@ namespace Gl
         // retval = CVodeSStolerances(cvode_mem, RTOL, ATOL);
         retval = CVodeWFtolerances(cvode_mem, ewt);
         retval = CVodeSetUserData(cvode_mem, data);
-        AA = SUNDenseMatrix(NEQ, NEQ, sunctx2);
-        LS = SUNLinSol_Dense(yy, AA, sunctx2);
+        ////////////////////////////////////////////////////////
+        // AA = SUNDenseMatrix(NEQ, NEQ, sunctx2);
+        // LS = SUNLinSol_Dense(yy, AA, sunctx2);
+        AA = SUNSparseMatrix(NEQ, NEQ, NEQ*NEQ, CSC_MAT, sunctx2);
+        LS = SUNLinSol_SPGMR(yy, PREC_NONE, 20, sunctx2);
+        ////////////////////////////////////////////////////////
         retval = CVodeSetLinearSolver(cvode_mem, LS, AA);
         retval = CVodeSetJacFn(cvode_mem, Jac);
         retval = CVodeSetMaxNumSteps(cvode_mem, 50000);
