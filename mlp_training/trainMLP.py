@@ -291,7 +291,11 @@ def main():
 
     torch.manual_seed(args.seed)
 
-    if use_mps:
+    ### ADDED ###
+    if torch.cuda.is_available():
+        device = torch.device("cuda:0")
+    #############
+    elif use_mps:
         device = torch.device("mps")
     else:
         device = torch.device("cpu")
@@ -329,7 +333,14 @@ def main():
     test_loader2 = torch.utils.data.DataLoader(testDataset, **test_kwargs, shuffle=False)
 	# loaders for SEP-ISAT training (shuffling disabled)
 
-    model = Net().to(device)
+    # model = Net().to(device)
+    ### ADDED ###
+    model = Net()
+    if torch.cuda.device_count() > 1:
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        model = nn.DataParallel(model)
+    model = model.to(device)
+    #############
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     optimizer2 = optim.Adam(model.parameters(), lr=args.lr)
 	
@@ -368,58 +379,62 @@ def main():
     end_time = time.time()
     print(f"Elapsed time: {end_time - start_time} seconds")
 
-    dd = model.fc1.weight.detach().numpy() 
+    ### ADDED ###
+    m = model.module if isinstance(model, nn.DataParallel) else model
+    #############
+
+    dd = m.fc1.weight.detach().numpy() 
     dd.tofile('fc1w.csv', sep = ',')
     
-    dd = model.fc2.weight.detach().numpy()    
+    dd = m.fc2.weight.detach().numpy()    
     dd.tofile('fc2w.csv', sep = ',')
     
-    dd = model.fc3.weight.detach().numpy()    
+    dd = m.fc3.weight.detach().numpy()    
     dd.tofile('fc3w.csv', sep = ',')
     
-    dd = model.fc4.weight.detach().numpy()    
+    dd = m.fc4.weight.detach().numpy()    
     dd.tofile('fc4w.csv', sep = ',')
     
-    dd = model.fc5.weight.detach().numpy()    
+    dd = m.fc5.weight.detach().numpy()    
     dd.tofile('fc5w.csv', sep = ',')
     
-    dd = model.fc6.weight.detach().numpy()    
+    dd = m.fc6.weight.detach().numpy()    
     dd.tofile('fc6w.csv', sep = ',')
     
-    dd = model.fc7.weight.detach().numpy()    
+    dd = m.fc7.weight.detach().numpy()    
     dd.tofile('fc7w.csv', sep = ',')
     
-    dd = model.fc8.weight.detach().numpy()    
+    dd = m.fc8.weight.detach().numpy()    
     dd.tofile('fc8w.csv', sep = ',')
     
-    dd = model.fc9.weight.detach().numpy()    
+    dd = m.fc9.weight.detach().numpy()    
     dd.tofile('fc9w.csv', sep = ',')
     
-    dd = model.fc1.bias.detach().numpy()    
+    dd = m.fc1.bias.detach().numpy()    
     dd.tofile('fc1b.csv', sep = ',')
     
-    dd = model.fc2.bias.detach().numpy()    
+    dd = m.fc2.bias.detach().numpy()    
     dd.tofile('fc2b.csv', sep = ',')
     
-    dd = model.fc3.bias.detach().numpy()    
+    dd = m.fc3.bias.detach().numpy()    
     dd.tofile('fc3b.csv', sep = ',')
     
-    dd = model.fc4.bias.detach().numpy()    
+    dd = m.fc4.bias.detach().numpy()    
     dd.tofile('fc4b.csv', sep = ',')
     
-    dd = model.fc5.bias.detach().numpy()    
+    dd = m.fc5.bias.detach().numpy()    
     dd.tofile('fc5b.csv', sep = ',')
 
-    dd = model.fc6.bias.detach().numpy()    
+    dd = m.fc6.bias.detach().numpy()    
     dd.tofile('fc6b.csv', sep = ',') # output the network weights into ASCII format
 
-    dd = model.fc7.bias.detach().numpy()    
+    dd = m.fc7.bias.detach().numpy()    
     dd.tofile('fc7b.csv', sep = ',') # output the network weights into ASCII format
 
-    dd = model.fc8.bias.detach().numpy()    
+    dd = m.fc8.bias.detach().numpy()    
     dd.tofile('fc8b.csv', sep = ',') # output the network weights into ASCII format
 
-    dd = model.fc9.bias.detach().numpy()    
+    dd = m.fc9.bias.detach().numpy()    
     dd.tofile('fc9b.csv', sep = ',') # output the network weights into ASCII format
 
 if __name__ == '__main__':
