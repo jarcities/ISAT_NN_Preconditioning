@@ -12,11 +12,15 @@ from torch.optim.lr_scheduler import StepLR
 import numpy as np
 import time
 
+### ADDED ###
+BIT = torch.float64
+#############
+
 use_cuda = False # at present, the training is done on CPUs
-dtype = torch.float64 if use_cuda else torch.float64
+dtype = BIT if use_cuda else BIT
 device_id = "cuda:0" if use_cuda else "cpu"
 
-torch.set_default_dtype(torch.float64)
+torch.set_default_dtype(BIT)
 
 N = 100 # number of neurons in the hidden layers
 IP_ISAT = 0 # whether to perform IP-ISAT training
@@ -218,8 +222,8 @@ def KmeansDataset(data1,n1,K1,K2,idim,device): # generate the training and testi
     X = d[:,1:idim+1]
     Y = d[:,idim+1:] # extract the cluster-arranged inputs and outputs
 	
-    X = torch.from_numpy(X).to(torch.float64)
-    Y = torch.from_numpy(Y).to(torch.float64) # convert to tensors   	
+    X = torch.from_numpy(X).to(BIT)
+    Y = torch.from_numpy(Y).to(BIT) # convert to tensors   	
     
     X, Y = X.to(device), Y.to(device) # send to device (currently, only CPU)
     
@@ -241,8 +245,8 @@ def KmeansDataset(data1,n1,K1,K2,idim,device): # generate the training and testi
     X2 = d[:,1:idim+1]
     Y2 = d[:,idim+1:] # extract the cluster-arranged inputs and outputs
 	
-    X2 = torch.from_numpy(X2).to(torch.float64)
-    Y2 = torch.from_numpy(Y2).to(torch.float64) # convert to tensors 
+    X2 = torch.from_numpy(X2).to(BIT)
+    Y2 = torch.from_numpy(Y2).to(BIT) # convert to tensors 
     
     X2, Y2 = X2.to(device), Y2.to(device) # send to device (currently, only CPU)
     
@@ -278,7 +282,12 @@ def main():
                         help='For Saving the current Model')
     args = parser.parse_args()
     use_cuda = False
-    use_mps = torch.backends.mps.is_available()
+
+    ### ADDED ###
+    use_mps = True
+    if use_mps:
+        use_mps = torch.backends.mps.is_available()
+    #############
 
     torch.manual_seed(args.seed)
 
