@@ -16,7 +16,7 @@ import time
 BIT = torch.float64
 #############
 
-use_cuda = False # at present, the training is done on CPUs
+use_cuda = True # at present, the training is done on CPUs
 dtype = BIT if use_cuda else BIT
 device_id = "cuda:0" if use_cuda else "cpu"
 
