@@ -1,0 +1,15 @@
+#!/bin/bash
+#SBATCH --job-name="run25"
+#SBATCH --partition=popov
+#SBATCH --nodes=1
+#SBATCH --nodelist=cpu076
+#SBATCH --ntasks-per-node=36
+#SBATCH --export=ALL
+#SBATCH -t 42:15:00
+#SBATCH --output=out
+#SBATCH --error=err
+
+##### These are shell commands
+
+
+python trainMLP.py > out 2> err
