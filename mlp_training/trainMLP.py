@@ -23,7 +23,7 @@ NUM_CPUS = 4
 BIT = torch.float64
 # how many threads used for training
 if USE_CPUS:
-    torch.set_num_threads(8)        
+    torch.set_num_threads(12)        
     torch.set_num_interop_threads(2)
 dtype = BIT if USE_CUDA else BIT
 device_id = "cuda:0" if USE_CUDA else "cpu"
@@ -369,14 +369,15 @@ def main():
         print(epoch)
 	
         if (np.mod(epoch,shuffleEpoch)==1): # rearrange training/testing data into new K-Means clusters every
-            # "shuffleEpoch" training epochs		
+            # "shuffleEpoch" training epochs
             
             trainDataset, testDataset = KmeansDataset(data1,n1,K1,K2,idim,device)
             train_loader2 = torch.utils.data.DataLoader(trainDataset,**train_kwargs,shuffle=False)
             test_loader2 = torch.utils.data.DataLoader(testDataset, **test_kwargs, shuffle=False)
-            scheduler2.step()
-    
+
         train2(args, model, device, train_loader2, optimizer2, epoch, nClusters, nKmeans)
+        scheduler2.step() 
+
         if (np.mod(epoch,10)==1):
             test2(model, device, test_loader2, nClusters, nKmeans)
 
