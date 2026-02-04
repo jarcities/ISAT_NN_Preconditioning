@@ -12,13 +12,22 @@ from torch.optim.lr_scheduler import StepLR
 import numpy as np
 import time
 
-### ADDED ###
+########################## ADDED ##########################
+# parallelize with CPU/GPU?
+USE_CPUS = True
+USE_CUDA = False # nvidia
+USE_MPS = False # apple
+# number of CPUS to load data, NOT TRAIN
+NUM_CPUS = 4
+# what bit
 BIT = torch.float64
-#############
-
-use_cuda = True # at present, the training is done on CPUs
-dtype = BIT if use_cuda else BIT
-device_id = "cuda:0" if use_cuda else "cpu"
+# how many threads used for training
+if USE_CPUS:
+    torch.set_num_threads(8)        
+    torch.set_num_interop_threads(2)
+dtype = BIT if USE_CUDA else BIT
+device_id = "cuda:0" if USE_CUDA else "cpu"
+###########################################################
 
 torch.set_default_dtype(BIT)
 
@@ -281,32 +290,23 @@ def main():
     parser.add_argument('--save-model', action='store_true', default=True,
                         help='For Saving the current Model')
     args = parser.parse_args()
-    use_cuda = False
-
-    ### ADDED ###
-    use_mps = True
-    if use_mps:
-        use_mps = torch.backends.mps.is_available()
-    #############
 
     torch.manual_seed(args.seed)
 
-    ### ADDED ###
-    if torch.cuda.is_available():
+    ########################## ADDED ##########################
+    if USE_CUDA and torch.cuda.is_available():
         device = torch.device("cuda:0")
-    #############
-    elif use_mps:
+        train_kwargs = {'batch_size': args.batch_size, 'num_workers': NUM_CPUS, 'pin_memory': True}
+        test_kwargs = {'batch_size': args.test_batch_size, 'num_workers': NUM_CPUS, 'pin_memory': True}
+    elif USE_MPS and torch.backends.mps.is_available():
         device = torch.device("mps")
-    else:
+        train_kwargs = {'batch_size': args.batch_size, 'num_workers': 0}  
+        test_kwargs = {'batch_size': args.test_batch_size, 'num_workers': 0}
+    else: 
         device = torch.device("cpu")
-
-    train_kwargs = {'batch_size': args.batch_size}
-    test_kwargs = {'batch_size': args.test_batch_size}
-    if use_cuda:
-        cuda_kwargs = {'num_workers': 1,
-                       'pin_memory': True}
-        train_kwargs.update(cuda_kwargs)
-        test_kwargs.update(cuda_kwargs)
+        train_kwargs = {'batch_size': args.batch_size, 'num_workers': NUM_CPUS}
+        test_kwargs = {'batch_size': args.test_batch_size, 'num_workers': NUM_CPUS}
+    ###########################################################
         
     Nsam = 262144 # number of samples in data.csv
     
@@ -333,14 +333,18 @@ def main():
     test_loader2 = torch.utils.data.DataLoader(testDataset, **test_kwargs, shuffle=False)
 	# loaders for SEP-ISAT training (shuffling disabled)
 
-    # model = Net().to(device)
-    ### ADDED ###
-    model = Net()
-    if torch.cuda.device_count() > 1:
-        print("Let's use", torch.cuda.device_count(), "GPUs!")
-        model = nn.DataParallel(model)
-    model = model.to(device)
-    #############
+    ########################## ADDED ##########################
+    ## https://docs.pytorch.org/tutorials/beginner/blitz/data_parallel_tutorial.html ##
+    if USE_CUDA and torch.cuda.is_available():
+        if torch.cuda.device_count() > 1:
+            print("USING -> ", torch.cuda.device_count(), " GPUS")
+            model = nn.DataParallel(Net())
+        else:
+            model = Net()
+        model = model.to(device)
+    else:
+        model = Net().to(device)
+    ###########################################################
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     optimizer2 = optim.Adam(model.parameters(), lr=args.lr)
 	
@@ -379,9 +383,9 @@ def main():
     end_time = time.time()
     print(f"Elapsed time: {end_time - start_time} seconds")
 
-    ### ADDED ###
+    ########################## ADDED ##########################
     m = model.module if isinstance(model, nn.DataParallel) else model
-    #############
+    ###########################################################
 
     dd = m.fc1.weight.detach().numpy() 
     dd.tofile('fc1w.csv', sep = ',')
