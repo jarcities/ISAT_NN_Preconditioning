@@ -126,11 +126,11 @@ def my_loss_H(output, target, X, nClusters, nKmeans): # custom loss function for
         output2 = output1[ii*nKmeans:(ii+1)*nKmeans,:] - torch.mean(output1[ii*nKmeans:(ii+1)*nKmeans,:],0,True)
         X2 = X[ii*nKmeans:(ii+1)*nKmeans,:] - torch.mean(X[ii*nKmeans:(ii+1)*nKmeans,:],0,True)
 		
-        ########################## ADDED ##########################
+        ####################### CPU VS GPU #######################
         ## MOVES least squares to CPU ###
         # grad = torch.linalg.lstsq(X2, output2 ,driver = 'gelsd').solution
-        # grad = torch.linalg.lstsq(X2.cpu(), output2.cpu() ,driver = 'gelsd').solution.to(X.device)
-        ###########################################################
+        grad = torch.linalg.lstsq(X2.cpu(), output2.cpu() ,driver = 'gelsd').solution.to(X.device)
+        ##########################################################
 
         output1[ii*nKmeans:(ii+1)*nKmeans,:] = output1[ii*nKmeans:(ii+1)*nKmeans,:] - ( torch.matmul(X2,grad) + torch.mean(output1[ii*nKmeans:(ii+1)*nKmeans,:],0,True) )
 		# for each K-Means cluster, subtract a least squares fit from the residual
@@ -276,7 +276,7 @@ def KmeansDataset(data1,n1,K1,K2,idim,device): # generate the training and testi
     X = torch.from_numpy(X).to(BIT)
     Y = torch.from_numpy(Y).to(BIT) # convert to tensors   	
     
-    # X, Y = X.to(device), Y.to(device) # send to device (currently, only CPU)  # REMOVED: Keep on CPU for DataLoader compatibility
+    X, Y = X.to(device), Y.to(device) # send to device 
     
     X2 = data1[n1:,:idim]
     Y2 = data1[n1:,idim:] # testing data
@@ -299,7 +299,7 @@ def KmeansDataset(data1,n1,K1,K2,idim,device): # generate the training and testi
     X2 = torch.from_numpy(X2).to(BIT)
     Y2 = torch.from_numpy(Y2).to(BIT) # convert to tensors 
     
-    # X2, Y2 = X2.to(device), Y2.to(device) # send to device (currently, only CPU)  # REMOVED: Keep on CPU for DataLoader compatibility
+    X2, Y2 = X2.to(device), Y2.to(device) # send to device 
     
     trainDataset = TensorDataset(X,Y)
     testDataset = TensorDataset(X2,Y2) # generate the pytorch datasets
