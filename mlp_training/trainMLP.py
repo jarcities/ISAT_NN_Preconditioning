@@ -11,29 +11,68 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import StepLR
 import numpy as np
 import time
+import os
+
+# Training settings
+parser = argparse.ArgumentParser(description='Preconditioned ISAT')
+parser.add_argument('--batch-size', type=int, default=512, metavar='N',
+                    help='input batch size for training (default: 64)')
+parser.add_argument('--test-batch-size', type=int, default=512, metavar='N',
+                    help='input batch size for testing (default: 1000)')
+parser.add_argument('--epochs', type=int, default=20000, metavar='N', #6000
+                    help='number of epochs to train (default: 14)')
+parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
+                    help='learning rate (default: 1.0)')
+parser.add_argument('--gamma', type=float, default=0.8, metavar='M',
+                    help='Learning rate step gamma (default: 0.7)')
+########################## ADDED ##########################
+parser.add_argument('--bit', type=int, default=64, metavar='M',
+                    help='32 or 64 bit to train model on ')
+parser.add_argument('--use-cpu', action='store_true', default=False,
+                    help='enables parallelized CPU training')
+parser.add_argument('--num-cpus', type=int, default=1, metavar='N',
+                    help='number of CPUs to use for data loading')
+###########################################################
+parser.add_argument('--use-cuda', action='store_true', default=False,
+                    help='enables CUDA training')
+parser.add_argument('--use-mps', action='store_true', default=False,
+                    help='enables macOS GPU training')
+parser.add_argument('--dry-run', action='store_true', default=False,
+                    help='quickly check a single pass')
+parser.add_argument('--seed', type=int, default=4, metavar='S',
+                    help='random seed (default: 1)')
+parser.add_argument('--log-interval', type=int, default=100, metavar='N',
+                    help='how many batches to wait before logging training status')
+parser.add_argument('--save-model', action='store_true', default=True,
+                    help='For Saving the current Model')
+args = parser.parse_args()
+
+torch.manual_seed(args.seed)
 
 ########################## ADDED ##########################
 # parallelize with CPU/GPU?
-USE_CPUS = True
-USE_CUDA = False # nvidia
-USE_MPS = False # apple
-# number of CPUS to load data, NOT TRAIN
-NUM_CPUS = 4
+USE_CPUS = args.use_cpu # parallelize on cpu
+USE_CUDA = args.use_cuda # nvidia
+USE_MPS = args.use_mps # apple
+NUM_CPUS = args.num_cpus # number of cpus to load data
 # what bit
-BIT = torch.float64
-# how many threads used for training
+if args.bit == 32:
+    BIT = torch.float32
+elif args.bit == 64:
+    BIT = torch.float64
 if USE_CPUS:
-    torch.set_num_threads(12)        
+    torch.set_num_threads(NUM_CPUS)
     torch.set_num_interop_threads(2)
 dtype = BIT if USE_CUDA else BIT
 device_id = "cuda:0" if USE_CUDA else "cpu"
+# print(f"Using {NUM_CPUS} CPUs for training and data loading")
 ###########################################################
 
 torch.set_default_dtype(BIT)
 
 N = 100 # number of neurons in the hidden layers
-IP_ISAT = 0 # whether to perform IP-ISAT training
-SEP_ISAT = 1 # whether to perform SEP-ISAT training
+IP_ISAT = 1 # whether to perform IP-ISAT training
+SEP_ISAT = 0 # whether to perform SEP-ISAT training
 
 class Net(nn.Module):  # define the network, 6 MLP layers with N neurons each
     def __init__(self):
@@ -87,15 +126,18 @@ def my_loss_H(output, target, X, nClusters, nKmeans): # custom loss function for
         output2 = output1[ii*nKmeans:(ii+1)*nKmeans,:] - torch.mean(output1[ii*nKmeans:(ii+1)*nKmeans,:],0,True)
         X2 = X[ii*nKmeans:(ii+1)*nKmeans,:] - torch.mean(X[ii*nKmeans:(ii+1)*nKmeans,:],0,True)
 		
-        grad = torch.linalg.lstsq(X2, output2,driver = 'gelsd').solution
-    
+        ########################## ADDED ##########################
+        ## MOVES least squares to CPU ###
+        # grad = torch.linalg.lstsq(X2, output2 ,driver = 'gelsd').solution
+        # grad = torch.linalg.lstsq(X2.cpu(), output2.cpu() ,driver = 'gelsd').solution.to(X.device)
+        ###########################################################
+
         output1[ii*nKmeans:(ii+1)*nKmeans,:] = output1[ii*nKmeans:(ii+1)*nKmeans,:] - ( torch.matmul(X2,grad) + torch.mean(output1[ii*nKmeans:(ii+1)*nKmeans,:],0,True) )
 		# for each K-Means cluster, subtract a least squares fit from the residual
     
 
     loss = (torch.mean((output1)**2)) #overall loss
-    return loss       
-        
+    return loss    
         
 def my_loss(output, target, X): # standard RMS loss
    loss = (torch.mean((output - target)**2))
@@ -265,34 +307,6 @@ def KmeansDataset(data1,n1,K1,K2,idim,device): # generate the training and testi
     return trainDataset, testDataset
 
 def main():
-    # Training settings
-    parser = argparse.ArgumentParser(description='Preconditioned ISAT')
-    parser.add_argument('--batch-size', type=int, default=512, metavar='N',
-                        help='input batch size for training (default: 64)')
-    parser.add_argument('--test-batch-size', type=int, default=512, metavar='N',
-                        help='input batch size for testing (default: 1000)')
-    parser.add_argument('--epochs', type=int, default=20000, metavar='N', #6000
-                        help='number of epochs to train (default: 14)')
-    parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
-                        help='learning rate (default: 1.0)')
-    parser.add_argument('--gamma', type=float, default=0.8, metavar='M',
-                        help='Learning rate step gamma (default: 0.7)')
-    parser.add_argument('--no-cuda', action='store_true', default=True,
-                        help='disables CUDA training')
-    parser.add_argument('--no-mps', action='store_true', default=True,
-                        help='disables macOS GPU training')
-    parser.add_argument('--dry-run', action='store_true', default=False,
-                        help='quickly check a single pass')
-    parser.add_argument('--seed', type=int, default=4, metavar='S',
-                        help='random seed (default: 1)')
-    parser.add_argument('--log-interval', type=int, default=100, metavar='N',
-                        help='how many batches to wait before logging training status')
-    parser.add_argument('--save-model', action='store_true', default=True,
-                        help='For Saving the current Model')
-    args = parser.parse_args()
-
-    torch.manual_seed(args.seed)
-
     ########################## ADDED ##########################
     if USE_CUDA and torch.cuda.is_available():
         device = torch.device("cuda:0")
@@ -374,9 +388,9 @@ def main():
             trainDataset, testDataset = KmeansDataset(data1,n1,K1,K2,idim,device)
             train_loader2 = torch.utils.data.DataLoader(trainDataset,**train_kwargs,shuffle=False)
             test_loader2 = torch.utils.data.DataLoader(testDataset, **test_kwargs, shuffle=False)
+            scheduler2.step() 
 
         train2(args, model, device, train_loader2, optimizer2, epoch, nClusters, nKmeans)
-        scheduler2.step() 
 
         if (np.mod(epoch,10)==1):
             test2(model, device, test_loader2, nClusters, nKmeans)
@@ -388,58 +402,58 @@ def main():
     m = model.module if isinstance(model, nn.DataParallel) else model
     ###########################################################
 
-    dd = m.fc1.weight.detach().numpy() 
+    dd = m.fc1.weight.detach().cpu().numpy() 
     dd.tofile('fc1w.csv', sep = ',')
     
-    dd = m.fc2.weight.detach().numpy()    
+    dd = m.fc2.weight.detach().cpu().numpy()    
     dd.tofile('fc2w.csv', sep = ',')
     
-    dd = m.fc3.weight.detach().numpy()    
+    dd = m.fc3.weight.detach().cpu().numpy()    
     dd.tofile('fc3w.csv', sep = ',')
     
-    dd = m.fc4.weight.detach().numpy()    
+    dd = m.fc4.weight.detach().cpu().numpy()    
     dd.tofile('fc4w.csv', sep = ',')
     
-    dd = m.fc5.weight.detach().numpy()    
+    dd = m.fc5.weight.detach().cpu().numpy()    
     dd.tofile('fc5w.csv', sep = ',')
     
-    dd = m.fc6.weight.detach().numpy()    
+    dd = m.fc6.weight.detach().cpu().numpy()    
     dd.tofile('fc6w.csv', sep = ',')
     
-    dd = m.fc7.weight.detach().numpy()    
+    dd = m.fc7.weight.detach().cpu().numpy()    
     dd.tofile('fc7w.csv', sep = ',')
     
-    dd = m.fc8.weight.detach().numpy()    
+    dd = m.fc8.weight.detach().cpu().numpy()    
     dd.tofile('fc8w.csv', sep = ',')
     
-    dd = m.fc9.weight.detach().numpy()    
+    dd = m.fc9.weight.detach().cpu().numpy()    
     dd.tofile('fc9w.csv', sep = ',')
     
-    dd = m.fc1.bias.detach().numpy()    
+    dd = m.fc1.bias.detach().cpu().numpy()    
     dd.tofile('fc1b.csv', sep = ',')
     
-    dd = m.fc2.bias.detach().numpy()    
+    dd = m.fc2.bias.detach().cpu().numpy()    
     dd.tofile('fc2b.csv', sep = ',')
     
-    dd = m.fc3.bias.detach().numpy()    
+    dd = m.fc3.bias.detach().cpu().numpy()    
     dd.tofile('fc3b.csv', sep = ',')
     
-    dd = m.fc4.bias.detach().numpy()    
+    dd = m.fc4.bias.detach().cpu().numpy()    
     dd.tofile('fc4b.csv', sep = ',')
     
-    dd = m.fc5.bias.detach().numpy()    
+    dd = m.fc5.bias.detach().cpu().numpy()    
     dd.tofile('fc5b.csv', sep = ',')
 
-    dd = m.fc6.bias.detach().numpy()    
+    dd = m.fc6.bias.detach().cpu().numpy()    
     dd.tofile('fc6b.csv', sep = ',') # output the network weights into ASCII format
 
-    dd = m.fc7.bias.detach().numpy()    
+    dd = m.fc7.bias.detach().cpu().numpy()    
     dd.tofile('fc7b.csv', sep = ',') # output the network weights into ASCII format
 
-    dd = m.fc8.bias.detach().numpy()    
+    dd = m.fc8.bias.detach().cpu().numpy()    
     dd.tofile('fc8b.csv', sep = ',') # output the network weights into ASCII format
 
-    dd = m.fc9.bias.detach().numpy()    
+    dd = m.fc9.bias.detach().cpu().numpy()    
     dd.tofile('fc9b.csv', sep = ',') # output the network weights into ASCII format
 
 if __name__ == '__main__':

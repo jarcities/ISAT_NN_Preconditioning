@@ -1,1 +1,1 @@
-python3 trainMLP.py
+python3 trainMLP.py --epochs=100 --bit=64 --num-cpus=4 --use-cude
