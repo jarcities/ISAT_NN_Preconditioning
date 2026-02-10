@@ -71,8 +71,8 @@ device_id = "cuda:0" if USE_CUDA else "cpu"
 torch.set_default_dtype(BIT)
 
 N = 100 # number of neurons in the hidden layers
-IP_ISAT = 1 # whether to perform IP-ISAT training
-SEP_ISAT = 0 # whether to perform SEP-ISAT training
+IP_ISAT = 0 # whether to perform IP-ISAT training
+SEP_ISAT = 1 # whether to perform SEP-ISAT training
 
 class Net(nn.Module):  # define the network, 6 MLP layers with N neurons each
     def __init__(self):
@@ -277,7 +277,7 @@ def KmeansDataset(data1,n1,K1,K2,idim,device): # generate the training and testi
     Y = torch.from_numpy(Y).to(BIT) # convert to tensors   	
     
     X, Y = X.to(device), Y.to(device) # send to device 
-    
+
     X2 = data1[n1:,:idim]
     Y2 = data1[n1:,idim:] # testing data
 	
