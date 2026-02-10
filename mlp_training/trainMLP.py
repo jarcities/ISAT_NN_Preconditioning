@@ -350,6 +350,7 @@ def main():
     ########################## ADDED ##########################
     ## https://docs.pytorch.org/tutorials/beginner/blitz/data_parallel_tutorial.html ##
     if USE_CUDA and torch.cuda.is_available():
+        print("USING NVIDIA GPUS")
         if torch.cuda.device_count() > 1:
             print("USING -> ", torch.cuda.device_count(), " GPUS")
             model = nn.DataParallel(Net())
