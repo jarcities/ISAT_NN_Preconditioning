@@ -276,7 +276,7 @@ def KmeansDataset(data1,n1,K1,K2,idim,device): # generate the training and testi
     X = torch.from_numpy(X).to(BIT)
     Y = torch.from_numpy(Y).to(BIT) # convert to tensors   	
     
-    X, Y = X.to(device), Y.to(device) # send to device 
+    # X, Y = X.to(device), Y.to(device) # send to device (currently, only CPU)
 
     X2 = data1[n1:,:idim]
     Y2 = data1[n1:,idim:] # testing data
@@ -299,7 +299,7 @@ def KmeansDataset(data1,n1,K1,K2,idim,device): # generate the training and testi
     X2 = torch.from_numpy(X2).to(BIT)
     Y2 = torch.from_numpy(Y2).to(BIT) # convert to tensors 
     
-    X2, Y2 = X2.to(device), Y2.to(device) # send to device 
+    # X2, Y2 = X2.to(device), Y2.to(device) # send to device (currently, only CPU)
     
     trainDataset = TensorDataset(X,Y)
     testDataset = TensorDataset(X2,Y2) # generate the pytorch datasets
