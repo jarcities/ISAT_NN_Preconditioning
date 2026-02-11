@@ -113,8 +113,8 @@ torch.set_default_dtype(BIT)
 device = torch.device("cpu")
 
 N = 100  # number of neurons in the hidden layers
-IP_ISAT = 0  # whether to perform IP-ISAT training
-SEP_ISAT = 1  # whether to perform SEP-ISAT training
+IP_ISAT = 1  # whether to perform IP-ISAT training
+SEP_ISAT = 0  # whether to perform SEP-ISAT training
 
 
 class Net(nn.Module):  # define the network, 6 MLP layers with N neurons each
@@ -525,22 +525,15 @@ def KmeansDataset(
 #     main()
 
 
-def setup(rank, world_size):
+def runTraining(rank, world_size, args, data1, n1, K1, K2, idim):
+    ## https://www.codegenes.net/blog/dataparallel-pytorch-cpu/#google_vignette ##
+    print(f"Running DDP on rank {rank}.")
+
     # setup distributed env
     ## https://medium.com/@nishantbhansali80/data-parallel-with-pytorch-on-cpus-3e89312db6c0 ##
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12355"
     dist.init_process_group("gloo", rank=rank, world_size=world_size)
-
-
-def cleanup():
-    dist.destroy_process_group()
-
-
-def runTraining(rank, world_size, args, data1, n1, K1, K2, idim):
-    ## https://www.codegenes.net/blog/dataparallel-pytorch-cpu/#google_vignette ##
-    print(f"Running DDP on rank {rank}.")
-    setup(rank, world_size)
 
     device = torch.device("cpu")
 
@@ -706,7 +699,7 @@ def runTraining(rank, world_size, args, data1, n1, K1, K2, idim):
         dd = m.fc9.bias.detach().cpu().numpy()
         dd.tofile("fc9b.csv", sep=",")
 
-    cleanup()
+    dist.destroy_process_group()
 
 
 def main():
@@ -724,9 +717,8 @@ def main():
     data1 = np.genfromtxt("data.csv", delimiter=",")  # get data from data.csv
 
     # compute world size for data distro
-    world_size = min(NUM_CPUS, os.cpu_count())
-
-    print(f"# of processes -> {world_size}")
+    world_size = max(NUM_CPUS, os.cpu_count())
+    print(f"\n# of processes -> {world_size}\n")
 
     # parallelize training
     mp.spawn(
