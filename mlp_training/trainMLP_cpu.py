@@ -718,7 +718,7 @@ def main():
 
     # compute world size for data distro
     # world_size = max(NUM_CPUS, os.cpu_count())
-    world_size = os.cpu_count() - NUM_CPUS
+    world_size = (os.cpu_count()/2) - NUM_CPUS
     print(f"\n# of processes -> {world_size}\n")
 
     # parallelize training
