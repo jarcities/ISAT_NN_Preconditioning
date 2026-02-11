@@ -539,8 +539,8 @@ def runTraining(rank, world_size, args, data1, n1, K1, K2, idim):
 
     # calculate effective batch size per process
     effective_batch_size = args.batch_size // world_size
-    train_kwargs = {"batch_size": effective_batch_size, "num_workers": 0}
-    test_kwargs = {"batch_size": args.test_batch_size // world_size, "num_workers": 0}
+    train_kwargs = {"batch_size": effective_batch_size, "num_workers": NUM_CPUS}
+    test_kwargs = {"batch_size": args.test_batch_size // world_size, "num_workers": NUM_CPUS}
 
     # load data
     ## https://docs.pytorch.org/docs/stable/data.html ##
@@ -718,7 +718,7 @@ def main():
 
     # compute world size for data distro
     # world_size = max(NUM_CPUS, os.cpu_count())
-    world_size = (os.cpu_count()/2) - NUM_CPUS
+    world_size = max(1, os.cpu_count() - NUM_CPUS)
     print(f"\n# of processes -> {world_size}\n")
 
     # parallelize training
