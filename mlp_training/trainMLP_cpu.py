@@ -717,8 +717,8 @@ def main():
     data1 = np.genfromtxt("data.csv", delimiter=",")  # get data from data.csv
 
     # compute world size for data distro
-    # world_size = max(NUM_CPUS, os.cpu_count())
-    world_size = max(1, os.cpu_count() - NUM_CPUS)
+    world_size = min(NUM_CPUS, os.cpu_count())
+    # world_size = max(1, os.cpu_count() - NUM_CPUS)
     print(f"\n# of processes -> {world_size}\n")
 
     # parallelize training
