@@ -10,4 +10,3 @@ jacobian_example/custom
 .vscode/
 __pycache__/
 *.exe
-mlp_training/data.csv
