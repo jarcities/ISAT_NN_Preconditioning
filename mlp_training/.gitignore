@@ -1,1 +1,5 @@
 *.csv
+err
+out
+out2
+data.csv
