@@ -1,0 +1,166 @@
+
+# of processes -> 4
+
+[Gloo] Rank 0 is connected to 3 peer ranks. Expected number of connected peer ranks is : 3
+[Gloo] Rank 3 is connected to 3 peer ranks. Expected number of connected peer ranks is : 3
+[Gloo] Rank 2 is connected to 3 peer ranks. Expected number of connected peer ranks is : 3
+[Gloo] Rank 1 is connected to 3 peer ranks. Expected number of connected peer ranks is : 3
+Running DDP on rank 0.
+128
+128
+128
+128
+1
+128
+128
+Running DDP on rank 3.
+128
+128
+128
+128
+128
+128
+Running DDP on rank 1.
+128
+128
+128
+128
+128
+128
+Running DDP on rank 2.
+128
+128
+128
+128
+128
+128
+
+Test set: Average loss: 
+ tensor(7.8656e-06)
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+
+Test set: Average loss: 
+ tensor(7.8649e-06)
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+
+Test set: Average loss: 
+ tensor(1.8670e-06)
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+
+Test set: Average loss: 
+ tensor(1.0835e-06)
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+
+Test set: Average loss: 
+ tensor(6.5896e-07)
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+
+Test set: Average loss: 
+ tensor(4.9715e-07)
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+
+Test set: Average loss: 
+ tensor(3.3007e-07)
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+
+Test set: Average loss: 
+ tensor(2.6860e-07)
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+
+Test set: Average loss: 
+ tensor(2.2878e-07)
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+
+Test set: Average loss: 
+ tensor(1.8214e-07)
+92
+93
+94
+95
+96
+97
+98
+99
+100
+Elapsed time: 775.56795835495 seconds
