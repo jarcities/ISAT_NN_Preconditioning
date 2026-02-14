@@ -1,0 +1,1 @@
+rm fc* err out out2
