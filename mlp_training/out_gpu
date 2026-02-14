@@ -6,301 +6,301 @@ Test set: Average loss:
  tensor(0.0001, device='cuda:0')
 
 Test set: Average loss: 
- tensor(6.1356e-05, device='cuda:0')
+ tensor(6.2462e-05, device='cuda:0')
 
 Test set: Average loss: 
- tensor(3.0807e-05, device='cuda:0')
+ tensor(3.0403e-05, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.7428e-05, device='cuda:0')
+ tensor(2.5815e-05, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.2270e-05, device='cuda:0')
+ tensor(2.2683e-05, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.2456e-05, device='cuda:0')
+ tensor(2.1659e-05, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.6697e-05, device='cuda:0')
+ tensor(1.7559e-05, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.4809e-05, device='cuda:0')
+ tensor(1.3372e-05, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.0320e-05, device='cuda:0')
+ tensor(1.2128e-05, device='cuda:0')
 
 Test set: Average loss: 
- tensor(9.1138e-06, device='cuda:0')
+ tensor(9.9481e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(8.7501e-06, device='cuda:0')
+ tensor(8.8133e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(7.5130e-06, device='cuda:0')
+ tensor(9.1073e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(8.9950e-06, device='cuda:0')
+ tensor(7.6465e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(7.0539e-06, device='cuda:0')
+ tensor(7.8143e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(6.9469e-06, device='cuda:0')
+ tensor(6.9561e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(6.1812e-06, device='cuda:0')
+ tensor(7.2047e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(6.3256e-06, device='cuda:0')
+ tensor(5.9453e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(5.2517e-06, device='cuda:0')
+ tensor(5.9900e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(5.5518e-06, device='cuda:0')
+ tensor(5.0326e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(5.0509e-06, device='cuda:0')
+ tensor(4.9196e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(5.3571e-06, device='cuda:0')
+ tensor(5.5968e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(5.4003e-06, device='cuda:0')
+ tensor(4.2301e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(4.2177e-06, device='cuda:0')
+ tensor(4.1911e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(3.9763e-06, device='cuda:0')
+ tensor(4.3627e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(4.4604e-06, device='cuda:0')
+ tensor(3.7349e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(3.6938e-06, device='cuda:0')
+ tensor(3.7842e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(3.6926e-06, device='cuda:0')
+ tensor(3.5965e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(4.4386e-06, device='cuda:0')
+ tensor(3.4685e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(3.7260e-06, device='cuda:0')
+ tensor(3.4456e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(3.6900e-06, device='cuda:0')
+ tensor(3.3120e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(3.8814e-06, device='cuda:0')
+ tensor(3.2625e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(3.1607e-06, device='cuda:0')
+ tensor(3.5731e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(3.1450e-06, device='cuda:0')
+ tensor(2.9645e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.8976e-06, device='cuda:0')
+ tensor(3.0418e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(3.0260e-06, device='cuda:0')
+ tensor(2.9687e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.8042e-06, device='cuda:0')
+ tensor(2.7799e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.6389e-06, device='cuda:0')
+ tensor(3.0164e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.8690e-06, device='cuda:0')
+ tensor(2.8197e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.5898e-06, device='cuda:0')
+ tensor(2.8021e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.4873e-06, device='cuda:0')
+ tensor(2.5899e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.5161e-06, device='cuda:0')
+ tensor(2.7171e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.7076e-06, device='cuda:0')
+ tensor(2.9365e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.5436e-06, device='cuda:0')
+ tensor(2.4935e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.8440e-06, device='cuda:0')
+ tensor(2.5389e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.9395e-06, device='cuda:0')
+ tensor(2.3578e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.1549e-06, device='cuda:0')
+ tensor(2.3702e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.4767e-06, device='cuda:0')
+ tensor(2.1659e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.5488e-06, device='cuda:0')
+ tensor(2.2780e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.1607e-06, device='cuda:0')
+ tensor(2.2855e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.2896e-06, device='cuda:0')
+ tensor(2.1140e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.9219e-06, device='cuda:0')
+ tensor(2.0865e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.3436e-06, device='cuda:0')
+ tensor(2.1230e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.0519e-06, device='cuda:0')
+ tensor(2.1820e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.9160e-06, device='cuda:0')
+ tensor(2.3590e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.1765e-06, device='cuda:0')
+ tensor(2.1602e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.0303e-06, device='cuda:0')
+ tensor(1.8441e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.2048e-06, device='cuda:0')
+ tensor(1.8222e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.8814e-06, device='cuda:0')
+ tensor(2.1080e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.6916e-06, device='cuda:0')
+ tensor(1.8808e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.8836e-06, device='cuda:0')
+ tensor(1.7313e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.7262e-06, device='cuda:0')
+ tensor(1.7710e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.9875e-06, device='cuda:0')
+ tensor(1.6985e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.7127e-06, device='cuda:0')
+ tensor(1.6439e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.8246e-06, device='cuda:0')
+ tensor(2.5279e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.6778e-06, device='cuda:0')
+ tensor(1.6580e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.2716e-06, device='cuda:0')
+ tensor(1.5977e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.6839e-06, device='cuda:0')
+ tensor(2.2166e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.6524e-06, device='cuda:0')
+ tensor(1.7724e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.1382e-06, device='cuda:0')
+ tensor(1.4973e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.6974e-06, device='cuda:0')
+ tensor(1.4791e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(2.1860e-06, device='cuda:0')
+ tensor(1.3326e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.6263e-06, device='cuda:0')
+ tensor(1.4991e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.4296e-06, device='cuda:0')
+ tensor(1.3273e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.3955e-06, device='cuda:0')
+ tensor(1.4671e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.6886e-06, device='cuda:0')
+ tensor(1.3696e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.3148e-06, device='cuda:0')
+ tensor(1.4212e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.4480e-06, device='cuda:0')
+ tensor(2.0006e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.5037e-06, device='cuda:0')
+ tensor(1.6124e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.4361e-06, device='cuda:0')
+ tensor(1.6303e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.2151e-06, device='cuda:0')
+ tensor(1.6967e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.2916e-06, device='cuda:0')
+ tensor(1.7186e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.2500e-06, device='cuda:0')
+ tensor(1.3320e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.5811e-06, device='cuda:0')
+ tensor(1.4076e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.3995e-06, device='cuda:0')
+ tensor(1.4194e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.3308e-06, device='cuda:0')
+ tensor(1.2403e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.1438e-06, device='cuda:0')
+ tensor(1.2834e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.3198e-06, device='cuda:0')
+ tensor(1.5477e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.1964e-06, device='cuda:0')
+ tensor(1.4973e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.3816e-06, device='cuda:0')
+ tensor(1.2822e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.1685e-06, device='cuda:0')
+ tensor(1.0869e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.1221e-06, device='cuda:0')
+ tensor(1.2111e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.1632e-06, device='cuda:0')
+ tensor(1.3461e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.1013e-06, device='cuda:0')
+ tensor(1.3258e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.1797e-06, device='cuda:0')
+ tensor(1.3304e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.6155e-06, device='cuda:0')
+ tensor(1.1350e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.2106e-06, device='cuda:0')
+ tensor(1.1327e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.1003e-06, device='cuda:0')
+ tensor(1.5721e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.2421e-06, device='cuda:0')
+ tensor(1.1821e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.2833e-06, device='cuda:0')
+ tensor(1.0131e-06, device='cuda:0')
 
 Test set: Average loss: 
- tensor(1.0679e-06, device='cuda:0')
+ tensor(1.1449e-06, device='cuda:0')
 128
 128
-Elapsed time: 140.59725856781006 seconds
+Elapsed time: 141.8905930519104 seconds
