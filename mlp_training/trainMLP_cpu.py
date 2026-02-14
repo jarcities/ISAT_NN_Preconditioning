@@ -113,8 +113,8 @@ torch.set_default_dtype(BIT)
 device = torch.device("cpu")
 
 N = 100  # number of neurons in the hidden layers
-IP_ISAT = 0  # whether to perform IP-ISAT training
-SEP_ISAT = 1  # whether to perform SEP-ISAT training
+IP_ISAT = 1  # whether to perform IP-ISAT training
+SEP_ISAT = 0  # whether to perform SEP-ISAT training
 
 
 class Net(nn.Module):  # define the network, 6 MLP layers with N neurons each
