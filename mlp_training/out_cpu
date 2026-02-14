@@ -1,0 +1,328 @@
+
+# of processes -> 4
+
+[Gloo] Rank 0 is connected to 3 peer ranks. Expected number of connected peer ranks is : 3
+[Gloo] Rank 3 is connected to 3 peer ranks. Expected number of connected peer ranks is : 3
+[Gloo] Rank 2 is connected to 3 peer ranks. Expected number of connected peer ranks is : 3
+[Gloo] Rank 1 is connected to 3 peer ranks. Expected number of connected peer ranks is : 3
+Running DDP on rank 0.
+128
+128
+Running DDP on rank 3.
+128
+128
+Running DDP on rank 2.
+128
+128
+Running DDP on rank 1.
+128
+128
+
+Test set: Average loss: 
+ tensor(0.0001)
+
+Test set: Average loss: 
+ tensor(8.9099e-05)
+
+Test set: Average loss: 
+ tensor(3.3084e-05)
+
+Test set: Average loss: 
+ tensor(2.8351e-05)
+
+Test set: Average loss: 
+ tensor(2.5193e-05)
+
+Test set: Average loss: 
+ tensor(2.2046e-05)
+
+Test set: Average loss: 
+ tensor(1.9607e-05)
+
+Test set: Average loss: 
+ tensor(1.5393e-05)
+
+Test set: Average loss: 
+ tensor(1.2207e-05)
+
+Test set: Average loss: 
+ tensor(1.4779e-05)
+
+Test set: Average loss: 
+ tensor(9.1504e-06)
+
+Test set: Average loss: 
+ tensor(8.8222e-06)
+
+Test set: Average loss: 
+ tensor(8.5897e-06)
+
+Test set: Average loss: 
+ tensor(7.9294e-06)
+
+Test set: Average loss: 
+ tensor(6.8773e-06)
+
+Test set: Average loss: 
+ tensor(6.8961e-06)
+
+Test set: Average loss: 
+ tensor(5.7305e-06)
+
+Test set: Average loss: 
+ tensor(5.4961e-06)
+
+Test set: Average loss: 
+ tensor(5.4381e-06)
+
+Test set: Average loss: 
+ tensor(4.6905e-06)
+
+Test set: Average loss: 
+ tensor(5.1259e-06)
+
+Test set: Average loss: 
+ tensor(5.1188e-06)
+
+Test set: Average loss: 
+ tensor(4.1012e-06)
+
+Test set: Average loss: 
+ tensor(5.0688e-06)
+
+Test set: Average loss: 
+ tensor(4.9911e-06)
+
+Test set: Average loss: 
+ tensor(3.8210e-06)
+
+Test set: Average loss: 
+ tensor(3.9135e-06)
+
+Test set: Average loss: 
+ tensor(3.9309e-06)
+
+Test set: Average loss: 
+ tensor(3.6582e-06)
+
+Test set: Average loss: 
+ tensor(4.9414e-06)
+
+Test set: Average loss: 
+ tensor(3.3403e-06)
+
+Test set: Average loss: 
+ tensor(3.1836e-06)
+
+Test set: Average loss: 
+ tensor(3.2535e-06)
+
+Test set: Average loss: 
+ tensor(2.9740e-06)
+
+Test set: Average loss: 
+ tensor(3.1635e-06)
+
+Test set: Average loss: 
+ tensor(2.9495e-06)
+
+Test set: Average loss: 
+ tensor(3.2548e-06)
+
+Test set: Average loss: 
+ tensor(2.9096e-06)
+
+Test set: Average loss: 
+ tensor(2.5977e-06)
+
+Test set: Average loss: 
+ tensor(2.6880e-06)
+
+Test set: Average loss: 
+ tensor(2.9774e-06)
+
+Test set: Average loss: 
+ tensor(2.8174e-06)
+
+Test set: Average loss: 
+ tensor(2.3713e-06)
+
+Test set: Average loss: 
+ tensor(2.3976e-06)
+
+Test set: Average loss: 
+ tensor(3.4764e-06)
+
+Test set: Average loss: 
+ tensor(2.1696e-06)
+
+Test set: Average loss: 
+ tensor(2.2105e-06)
+
+Test set: Average loss: 
+ tensor(2.0327e-06)
+
+Test set: Average loss: 
+ tensor(2.0970e-06)
+
+Test set: Average loss: 
+ tensor(2.8188e-06)
+
+Test set: Average loss: 
+ tensor(2.2866e-06)
+
+Test set: Average loss: 
+ tensor(1.9396e-06)
+
+Test set: Average loss: 
+ tensor(2.1549e-06)
+
+Test set: Average loss: 
+ tensor(1.8829e-06)
+
+Test set: Average loss: 
+ tensor(1.9013e-06)
+
+Test set: Average loss: 
+ tensor(1.8157e-06)
+
+Test set: Average loss: 
+ tensor(1.8489e-06)
+
+Test set: Average loss: 
+ tensor(1.6769e-06)
+
+Test set: Average loss: 
+ tensor(2.1156e-06)
+
+Test set: Average loss: 
+ tensor(2.0966e-06)
+
+Test set: Average loss: 
+ tensor(1.7094e-06)
+
+Test set: Average loss: 
+ tensor(1.6072e-06)
+
+Test set: Average loss: 
+ tensor(1.7960e-06)
+
+Test set: Average loss: 
+ tensor(1.9613e-06)
+
+Test set: Average loss: 
+ tensor(1.4969e-06)
+
+Test set: Average loss: 
+ tensor(1.7918e-06)
+
+Test set: Average loss: 
+ tensor(1.5789e-06)
+
+Test set: Average loss: 
+ tensor(1.6421e-06)
+
+Test set: Average loss: 
+ tensor(1.8267e-06)
+
+Test set: Average loss: 
+ tensor(1.6335e-06)
+
+Test set: Average loss: 
+ tensor(1.5708e-06)
+
+Test set: Average loss: 
+ tensor(1.4860e-06)
+
+Test set: Average loss: 
+ tensor(1.8110e-06)
+
+Test set: Average loss: 
+ tensor(1.4442e-06)
+
+Test set: Average loss: 
+ tensor(1.4791e-06)
+
+Test set: Average loss: 
+ tensor(1.5119e-06)
+
+Test set: Average loss: 
+ tensor(1.5095e-06)
+
+Test set: Average loss: 
+ tensor(1.5475e-06)
+
+Test set: Average loss: 
+ tensor(1.5693e-06)
+
+Test set: Average loss: 
+ tensor(1.5022e-06)
+
+Test set: Average loss: 
+ tensor(1.4337e-06)
+
+Test set: Average loss: 
+ tensor(1.6222e-06)
+
+Test set: Average loss: 
+ tensor(1.4082e-06)
+
+Test set: Average loss: 
+ tensor(1.4482e-06)
+
+Test set: Average loss: 
+ tensor(1.5007e-06)
+
+Test set: Average loss: 
+ tensor(1.2997e-06)
+
+Test set: Average loss: 
+ tensor(1.4542e-06)
+
+Test set: Average loss: 
+ tensor(1.4416e-06)
+
+Test set: Average loss: 
+ tensor(1.2420e-06)
+
+Test set: Average loss: 
+ tensor(1.2857e-06)
+
+Test set: Average loss: 
+ tensor(1.5573e-06)
+
+Test set: Average loss: 
+ tensor(1.3236e-06)
+
+Test set: Average loss: 
+ tensor(1.1201e-06)
+
+Test set: Average loss: 
+ tensor(1.1414e-06)
+
+Test set: Average loss: 
+ tensor(1.1652e-06)
+
+Test set: Average loss: 
+ tensor(1.2281e-06)
+
+Test set: Average loss: 
+ tensor(1.2801e-06)
+
+Test set: Average loss: 
+ tensor(1.2501e-06)
+
+Test set: Average loss: 
+ tensor(1.3999e-06)
+128
+128
+128
+128
+128
+128
+
+Test set: Average loss: 
+ tensor(1.1255e-06)
+128
+128
+Elapsed time: 1030.3543536663055 seconds
