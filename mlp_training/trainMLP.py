@@ -55,6 +55,8 @@ USE_CPUS = args.use_cpu # parallelize on cpu
 USE_CUDA = args.use_cuda # nvidia
 USE_MPS = args.use_mps # apple
 NUM_CPUS = args.num_cpus # number of cpus to load data
+if NUM_CPUS == 0:
+    NUM_CPUS = os.cpu_count()
 # what bit
 if args.bit == 32:
     BIT = torch.float32
